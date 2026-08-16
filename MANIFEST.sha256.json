@@ -5,17 +5,22 @@
     ".gitignore",
     "MANIFEST.sha256.json"
   ],
-  "file_count": 113,
+  "file_count": 118,
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 1287,
-      "sha256": "86ab9ecb67b57ab02b33f738846180f97e4e5c37219195d4323d422ca5a15bfa"
+      "bytes": 1732,
+      "sha256": "e339547e6002d7d257e9365f4b9d96b3d56e442d100bea500ddbf663ab676f43"
     },
     {
       "path": "BUILD_REPORT.md",
-      "bytes": 4658,
-      "sha256": "c92eb5ede3a7e807989bcb39e4489fe145f1f72282b1e8dad10d95ace5543eeb"
+      "bytes": 5181,
+      "sha256": "7a39d5303fb64b5b3fa9bcf01938c5b58e6f19fbec9516654b7a3cf52e377d64"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 5241,
+      "sha256": "2b91b624999c99ef54112a1707e00274aaa85ee50115f3906f3cdf4f9e33f38e"
     },
     {
       "path": "LICENSE",
@@ -24,8 +29,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 31593,
-      "sha256": "4e2d5a6f292f2cf17169d3dfedf07675df827bea233980eaf22587f9a3ec5645"
+      "bytes": 37896,
+      "sha256": "6c0a4abe37e375168e2c3923a1caf6f796d99f75f98159ac80f80f0249c5e6d8"
     },
     {
       "path": "configs/default.yaml",
@@ -39,8 +44,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "bytes": 2900,
-      "sha256": "28391dfe9d922accef430c40e86a4fb47588247e68bd222802f89f8764ecf852"
+      "bytes": 3026,
+      "sha256": "40803ac5892728bf5eeaec19528a9d515dbad100ca39c5ea34c807e4239152de"
     },
     {
       "path": "docs/MATHEMATICS.md",
@@ -54,8 +59,8 @@
     },
     {
       "path": "docs/READING_LIST.md",
-      "bytes": 8128,
-      "sha256": "afa7e6e997db9a3ad5e362314a0400ef846298bcf28f4af3cd46884d2ad19f90"
+      "bytes": 8168,
+      "sha256": "9d81f65b59404b206c302aa9a277a5f9f648a0be0ad707a45ea78901ac969522"
     },
     {
       "path": "docs/V32_HARDENING.md",
@@ -79,8 +84,8 @@
     },
     {
       "path": "example_output.txt",
-      "bytes": 3532,
-      "sha256": "46d4b6804dc08423cf024bfab5fb508e7222315b64c59b71a75604765cb0eea3"
+      "bytes": 3909,
+      "sha256": "33a87638cf75c34dc01ee43389e27778bf83c4a8f2b756fe157590f29b5151af"
     },
     {
       "path": "examples/run_lgae_v3.py",
@@ -89,13 +94,13 @@
     },
     {
       "path": "policy_qualification_report.json",
-      "bytes": 767,
-      "sha256": "ff1c81ec402fe9bf60034503acd7ecf69ccd9a8654b7f7a6ea41c7b3fcdb5dee"
+      "bytes": 803,
+      "sha256": "e1f0d8983981f1d2b7491bfce85aa3e51941ddc86a21129b6b4efb54e1918af6"
     },
     {
       "path": "production_qualification_report.json",
-      "bytes": 1417,
-      "sha256": "727ebd4a237b3e472a6b7410dcbc4824c1a1052674c9f18fc8fe916043203164"
+      "bytes": 1420,
+      "sha256": "2982693d0f8339437af44cb81131e009f696ee2e90a3161a83e2dda27fae46db"
     },
     {
       "path": "pyproject.toml",
@@ -104,13 +109,13 @@
     },
     {
       "path": "qualification_report.json",
-      "bytes": 4406,
-      "sha256": "8d663910f2b624478346d34cf1ab357f7820a74f0fa20d7e3befbb70fda86849"
+      "bytes": 4405,
+      "sha256": "2d2c14ea707ad077ab45ec65fa55da8d25ac045456def84e2a9c2eaf852273de"
     },
     {
       "path": "release_verification.json",
-      "bytes": 1524,
-      "sha256": "4dc282aecea48c157fe4ab641436ea6413848574c2ffdf66dcca08b494e22535"
+      "bytes": 2371,
+      "sha256": "7b6a67c543fbb647efd001a03597857b500225928ce55ed4257d7b20cf2057b2"
     },
     {
       "path": "requirements-verified.txt",
@@ -133,6 +138,11 @@
       "sha256": "c7398a97fe749c74e7253f3fb1a24e05871a7a917329592feab3168f70d3336a"
     },
     {
+      "path": "scripts/compare_baselines.py",
+      "bytes": 6006,
+      "sha256": "8b2de0a5de6f907a3e2f2af239dbb5f86332cdb40c112797c5b4af7194c8f9af"
+    },
+    {
       "path": "scripts/generate_manifest.py",
       "bytes": 5489,
       "sha256": "697aa8113b60aafa48ae289c2c975c150343f40a62a84f4a7dcef498927dccad"
@@ -153,6 +163,11 @@
       "sha256": "9a34603cea0942c85c8cfc5aa904d9c69e936cc10b2ba48a62654a4190cdf0c6"
     },
     {
+      "path": "scripts/run_real_experiment.py",
+      "bytes": 9881,
+      "sha256": "149dddd63ba6c87fe7c677b2d8db3dad6b7341b3bbcc05069d1ad9c12bb427b5"
+    },
+    {
       "path": "src/lgae_v3/__init__.py",
       "bytes": 3894,
       "sha256": "18e75e92650a62bc25784b5a5585ea3c04f28195a2d6732583c5fde5b04aa81f"
@@ -169,8 +184,13 @@
     },
     {
       "path": "src/lgae_v3/benchmark/__init__.py",
-      "bytes": 1233,
-      "sha256": "6c775d83c0cbbac9fd676e4d273ca5d5fed38f474d1d70f154ec36310986b316"
+      "bytes": 1596,
+      "sha256": "c7a2fc717c6c948eeb7b06b6fad012b0710acd1c3cdec4a37b22e7ae795460c9"
+    },
+    {
+      "path": "src/lgae_v3/benchmark/baselines.py",
+      "bytes": 4922,
+      "sha256": "a4e36cf32a0a577cca806501e0c9b2addc8323e363ee560120100e5061540380"
     },
     {
       "path": "src/lgae_v3/benchmark/harness.py",
@@ -184,13 +204,13 @@
     },
     {
       "path": "src/lgae_v3/benchmark/policy_qualification.py",
-      "bytes": 5673,
-      "sha256": "a01fc3001da9498da39174842e090fa552c7cc28973f7b4c7af249a57dd6a2d9"
+      "bytes": 6108,
+      "sha256": "51f8ec071145336bd1beb3fa7b5346f3d2f16c9749d18b1ea8b5eda9427aff60"
     },
     {
       "path": "src/lgae_v3/benchmark/tasks.py",
-      "bytes": 23086,
-      "sha256": "875e0d201e91020616c24c7741aa34ce3db496500489032f1facc0bd4169c305"
+      "bytes": 29813,
+      "sha256": "0f95ffa03c5a6f92baca0adb20fda821da2575b9794f56ee3860b8a4628866fd"
     },
     {
       "path": "src/lgae_v3/causal_edges.py",
@@ -571,6 +591,11 @@
       "path": "tests/test_v530_production_dynamics.py",
       "bytes": 7824,
       "sha256": "50391b85100d7cb909c5d04ffb17857180e6a8db0cf9005ed0483633d3235b01"
+    },
+    {
+      "path": "tests/test_v531_integrity_fixes.py",
+      "bytes": 5504,
+      "sha256": "3e1ee09bf5ff6cbc7793bede2877d017abc71efe136b2203a16d99e0c829e045"
     }
   ]
 }

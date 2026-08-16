@@ -7,7 +7,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.6+](https://img.shields.io/badge/PyTorch-2.6+-ee4c2c.svg)](https://pytorch.org/)
 [![CI Status](https://github.com/dawsonblock/1LR/actions/workflows/ci.yml/badge.svg)](https://github.com/dawsonblock/1LR/actions)
-[![Tests](https://img.shields.io/badge/tests-559%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-573%20passing-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Gauge: SO(d)](https://img.shields.io/badge/gauge-SO(d)%20Invariance-purple.svg)]()
 [![Validation: synthetic-only](https://img.shields.io/badge/validation-synthetic%20only-orange.svg)]()
@@ -26,7 +26,7 @@
 
 v5.3.0 hardens the long-running dynamics around the v5.2 policy-qualified controller: exact native `SO(d)` gauge transport is retained, external sheaf maps gain non-expansive transport guards, automatic surgery gains curvature EMA/variance hysteresis, directed kernels gain stationary-measure Γ₂ symmetrization, ANN/neighbor caches become transaction-generation aware, slow structural updates can wait for latent equilibrium, and mutation learning uses graph-conditioned counterfactual advantages.
 
-Release gates: **559 tests passing**, geometry qualification **9/9**, production-dynamics qualification **8/8**, and structural-policy qualification **PASS** at **90.0%** synthetic diagnosis accuracy with **0.0206** mean regret (deterministic; previously the gate was nondeterministic, see `CHANGELOG`). See `docs/V5_3_0_PRODUCTION_DYNAMICS.md`.
+Release gates: **573 tests passing**, geometry qualification **9/9**, production-dynamics qualification **8/8**, and structural-policy qualification **PASS** at **83.3%** synthetic diagnosis accuracy with **0.0176** mean regret (deterministic; previously the gate was nondeterministic, see `CHANGELOG`). See `docs/V5_3_0_PRODUCTION_DYNAMICS.md`.
 
 ### v5.2.0 — Structural Policy Qualification
 
@@ -435,7 +435,43 @@ The oracles above are verified against analytic ground truth and are the stronge
 - **No deployment-safety proof.** The governor's transactional shadow/rollback/quarantine and fail-closed numerical behavior are engineering safeguards, not a formal safety argument.
 - **`torch.compile` not performance-qualified this release.** The fresh CPU Inductor smoke timed out during compilation in the packaging container; the compiled-kernel architecture is inherited from v5.2 and not newly measured. See `release_verification.json`.
 
-A baseline-comparison script (`scripts/run_real_experiment.py`) is provided to begin closing the no-baseline gap; see [Real-world experiment](#real-world-experiment).
+Two scripts are provided to begin closing these gaps; see [Baseline comparison](#baseline-comparison) and [Real-world experiment](#real-world-experiment).
+
+---
+
+## Baseline comparison
+
+`scripts/compare_baselines.py` runs four controllers — random, spectral-heuristic, learned, oracle — on the same synthetic tasks and reports diagnosis accuracy and mean regret for each, on both the in-distribution tasks and truly held-out structurally-distinct task variants.
+
+```
+controller             split                  accuracy     regret
+random                 in_distribution          0.1000     2.6918
+spectral_heuristic     in_distribution          0.4667     2.2669
+learned                in_distribution          0.8333     0.0176
+oracle                 in_distribution          1.0000     0.0000
+random                 held_out_structure       0.1000     3.0092
+spectral_heuristic     held_out_structure       0.6000     2.4000
+learned                held_out_structure       0.3000     0.6175
+oracle                 held_out_structure       1.0000     0.0000
+```
+
+**Reading.** The learned executive clearly beats random and the non-learned spectral heuristic in-distribution. On structurally held-out tasks it **loses to the spectral heuristic on diagnosis accuracy** (30% vs 60%) but has lower regret (0.62 vs 2.40), suggesting it defaults to safe NO_OP on unseen structures rather than misdiagnosing. This is the first honest generalization signal the benchmark has produced, and it indicates the learned policy does not yet transfer as well as a cheap non-learned rule.
+
+---
+
+## Real-world experiment
+
+`scripts/run_real_experiment.py` is a small real-world sanity check using Zachary's Karate Club (a real 34-node social network with two ground-truth communities, shipped with NetworkX) and a real downstream task: recovering the two communities from a latent embedding via clustering.
+
+```
+condition                accuracy    lambda2    edges
+raw                        0.7059     0.1323       78
+random_add                 0.7353     0.1632       84
+spectral_heuristic         0.7941     0.1249       84
+lgae_governed              0.6765     0.1323       78
+```
+
+**Reading.** On this real task the LGAE governance loop does **not** improve community recovery over the raw baseline: the governor commits zero mutations on a graph this small (all proposals are rejected by the shadow audits), and the engine's fiber latent is a slightly worse representation for clustering than the raw spectral embedding. A simple spectral heuristic (adding edges between embedding-close non-adjacent nodes) does best. This is an honest negative result for the governance loop on a small real graph and is reported as such — it does not support a "production-ready controller" claim. It is the starting point for understanding *when* the governance machinery helps, which remains an open question.
 
 ---
 

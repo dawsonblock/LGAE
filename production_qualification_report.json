@@ -44,9 +44,9 @@
     "gamma2_mode": "stationary_measure_symmetrized_markov",
     "sheaf_transported_norm": 1.0,
     "stationary_measure": [
-      0.2962962962990875,
-      0.3703703703690947,
-      0.3333333333318179
+      0.29629629629908744,
+      0.37037037036909465,
+      0.33333333333181786
     ]
   },
   "passed": true,

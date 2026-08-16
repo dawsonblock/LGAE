@@ -38,6 +38,20 @@ jobs:
         run: |
           python scripts/qualify.py
 
+      - name: Run policy qualification (deterministic gate)
+        run: |
+          python scripts/qualify_policy.py
+
+      - name: Run baseline comparison
+        run: |
+          python scripts/compare_baselines.py --out baseline_comparison.json
+        continue-on-error: true
+
+      - name: Run real-world experiment
+        run: |
+          python scripts/run_real_experiment.py --out real_experiment.json
+        continue-on-error: true
+
       - name: Run CLI smoke tests
         run: |
           lgae-v3 demo --nodes 8 --steps 2

@@ -2,8 +2,9 @@
   "release": "LGAE v5.3.0 \u2014 Production Dynamics Hardening",
   "version": "5.3.0",
   "test_collection": 559,
-  "test_status": "PASS_IN_BOUNDED_BATCHES",
+  "test_status": "PASS_SINGLE_INVOCATION",
   "tests_passed": 559,
+  "test_note": "Full suite passes in a single pytest invocation (~15s on a modern laptop). The v5.3.0 'PASS_IN_BOUNDED_BATCHES' claim was not reproducible and has been corrected.",
   "geometry_qualification": {
     "passed": true,
     "checks": 9
@@ -15,10 +16,18 @@
   "policy_qualification": {
     "passed": true,
     "train_samples": 864,
-    "diagnosis_accuracy": 0.8666666666666668,
-    "mean_regret": 0.027418026129404704,
+    "diagnosis_accuracy": 0.8333333333333334,
+    "mean_regret": 0.017605853577454884,
     "accuracy_threshold": 0.8,
-    "regret_threshold": 0.35
+    "regret_threshold": 0.35,
+    "deterministic": true,
+    "note": "Deterministic after the v5.3.1 seed-before-network-init fix. The v5.3.0 report's 86.7% was one nondeterministic draw (observed range 86.7%-100%)."
+  },
+  "baseline_comparison": {
+    "script": "scripts/compare_baselines.py",
+    "note": "First baseline comparison for this project. Learned executive beats random and spectral-heuristic in-distribution but loses to the spectral heuristic on held-out diagnosis accuracy.",
+    "in_distribution": {"random": 0.1, "spectral_heuristic": 0.4667, "learned": 0.8333, "oracle": 1.0},
+    "held_out_structure": {"random": 0.1, "spectral_heuristic": 0.6, "learned": 0.3, "oracle": 1.0}
   },
   "wheel": {
     "path": "dist/lgae_v3-5.3.0-py3-none-any.whl",

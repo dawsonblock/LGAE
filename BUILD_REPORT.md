@@ -53,19 +53,19 @@ v5.3.0 hardens the dynamics around the v5.2 structural-policy layer without weak
 `scripts/qualify_policy.py`: **PASS**
 
 - training structural outcomes: **864**
-- held-out diagnosis accuracy: **86.6667%**
-- mean mutation regret: **0.0274180**
+- held-out diagnosis accuracy: **83.3333%** (deterministic after the v5.3.1 seed-before-init fix; the v5.3.0 report's 86.7% was one nondeterministic draw)
+- mean mutation regret: **0.0176059**
 - release thresholds: accuracy >= 80%, regret <= 0.35
 
-This remains a controlled synthetic proposal-policy qualification, not a deployment-safety or real-world generalization claim.
+This remains a controlled synthetic proposal-policy qualification, not a deployment-safety or real-world generalization claim. See `scripts/compare_baselines.py` for a baseline comparison (random / spectral-heuristic / learned / oracle) on both in-distribution and structurally held-out tasks.
 
 ## Tests
 
 - pytest collection: **559 tests**
-- all **559/559 passed** in chunked execution after the final source changes
+- all **559/559 passed** in a single `pytest` invocation (~15s on a modern laptop)
 - v5.3 production-dynamics tests: **12/12 passed**
 
-A single monolithic pytest invocation exceeds the execution window of the packaging environment because several legacy large-graph/policy tests are intentionally expensive; the same complete file set passes when executed in bounded batches.
+The v5.3.0 BUILD_REPORT claimed "a single monolithic pytest invocation exceeds the execution window of the packaging environment" and that the suite only passed "in bounded batches". This was not reproducible: on a standard development machine the full suite completes in ~15 seconds in one invocation. The "bounded batches" note may have reflected a specific constrained packaging container, but it is not a general property of the suite and has been removed as a release claim.
 
 ## Compile qualification
 
