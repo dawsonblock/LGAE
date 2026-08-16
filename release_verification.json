@@ -1,0 +1,48 @@
+{
+  "release": "LGAE v5.3.0 \u2014 Production Dynamics Hardening",
+  "version": "5.3.0",
+  "test_collection": 559,
+  "test_status": "PASS_IN_BOUNDED_BATCHES",
+  "tests_passed": 559,
+  "geometry_qualification": {
+    "passed": true,
+    "checks": 9
+  },
+  "production_dynamics_qualification": {
+    "passed": true,
+    "checks": 8
+  },
+  "policy_qualification": {
+    "passed": true,
+    "train_samples": 864,
+    "diagnosis_accuracy": 0.8666666666666668,
+    "mean_regret": 0.027418026129404704,
+    "accuracy_threshold": 0.8,
+    "regret_threshold": 0.35
+  },
+  "wheel": {
+    "path": "dist/lgae_v3-5.3.0-py3-none-any.whl",
+    "sha256": "b389af093046145c51a9273fe37a4b76727bd774d7ebf08d5352bfac7e1eb6d2",
+    "offline_build": "PASS",
+    "isolated_target_install": "PASS",
+    "installed_version": "5.3.0",
+    "cli_version": "5.3.0"
+  },
+  "torch_compile": {
+    "architecture": "fixed-shape sparse numerical kernels; eager discrete evolution",
+    "fresh_cpu_inductor_smoke": "TIMEOUT_DURING_COMPILE",
+    "release_claim": "NOT_NEWLY_PERFORMANCE_QUALIFIED",
+    "note": "The compiled kernel architecture is inherited from v5.2; no new v5.3 Inductor performance claim is made because this container exceeded the compile window."
+  },
+  "qualification_artifacts": [
+    "qualification_report.json",
+    "production_qualification_report.json",
+    "policy_qualification_report.json"
+  ],
+  "integrity": {
+    "manifest": "PASS",
+    "zip_crc": "PASS",
+    "zip_path_safety": "PASS",
+    "zip_manifest_rehash": "PASS"
+  }
+}

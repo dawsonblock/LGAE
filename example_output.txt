@@ -1,0 +1,142 @@
+{
+  "version": "5.3.0",
+  "nodes": 10,
+  "edges_before": 11,
+  "capacity_mean": 32.0,
+  "audit": {
+    "lambda2": 0.048276811838150024,
+    "operator_discrepancy": 0.5931569933891296,
+    "integral_lly_deficit": 0.6666666666666663,
+    "weak_entropic_min": -1.3862943607198905,
+    "bakry_min": 0.5262173668879353,
+    "cde_residual": 0.0,
+    "topology_signature": {
+      "nodes": 10.0,
+      "edges": 11.0,
+      "beta0": 1.0,
+      "beta1": 2.0
+    },
+    "details": {
+      "lly_complete": false,
+      "lly_crosscheck_max_error": 2.220446049250313e-16,
+      "entropic_nodes": 10,
+      "entropic_complete": true,
+      "entropic_failures": {},
+      "bakry_nodes": 8,
+      "cde_kind": "sampled_violation",
+      "curvature_weight_mode": "unweighted_reference",
+      "candidate_geometry_mode": "unweighted_reference",
+      "audit_geometry_mode": "unweighted_reference",
+      "certificate_geometry_mode": "unweighted_reference",
+      "diagnostic_support_mode": "full_soft_kernel",
+      "persistent_homology": null,
+      "graph_version": 0,
+      "graph_state_hash": "d85243322362c7437e0e28442ff84fa43cd57de5bb5ed4126eaed02ad4b516e8",
+      "spectral_solver_used": "exact",
+      "multiscale_orc": {
+        "(2, 3)": {
+          "1": -0.25000033586611536,
+          "2": 0.5308741346686874
+        },
+        "(6, 7)": {
+          "1": -0.2500002739459548,
+          "2": 0.5308758313666404
+        },
+        "(3, 4)": {
+          "1": 3.7627645732563053e-07,
+          "2": -0.33358507865836273
+        },
+        "(4, 5)": {
+          "1": 3.7627645732563053e-07,
+          "2": -0.00039973391243397494
+        }
+      },
+      "lly": {
+        "(2, 3)": -0.33333333333333326,
+        "(6, 7)": -0.33333333333333304,
+        "(3, 4)": 0.0,
+        "(4, 5)": 0.0,
+        "(5, 6)": 0.0,
+        "(0, 2)": 0.8333333333333334,
+        "(1, 2)": 0.8333333333333334,
+        "(7, 8)": 0.8333333333333333
+      },
+      "role_lly_deficit": 0.6666666666666663,
+      "entropic": {
+        "7": 8.000080599580773e-10,
+        "6": -1.3862943607198905,
+        "9": 4.000000331361484e-10,
+        "8": 4.000000331361484e-10,
+        "5": 1.3862943611198906,
+        "1": 4.000000331361484e-10,
+        "0": 4.000000331361484e-10,
+        "4": 1.3862943611198906,
+        "2": 7.999836350515258e-10,
+        "3": -1.3862943607198905
+      },
+      "entropic_status": {
+        "7": "ok",
+        "6": "ok",
+        "9": "ok",
+        "8": "ok",
+        "5": "ok",
+        "1": "ok",
+        "0": "ok",
+        "4": "ok",
+        "2": "ok",
+        "3": "ok"
+      },
+      "analytic_vertices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "bakry_stationary_measure_min": 0.09189238976962119,
+      "bakry_generator": "reversible_normalized_markov",
+      "bakry_values": [
+        0.5436349089208217,
+        0.5420204845655197,
+        0.5529906083337224,
+        0.5534607879819475,
+        0.5440836136182611,
+        0.5378705122011551,
+        0.5262173668879353,
+        0.5343829638208402
+      ]
+    }
+  },
+  "mutation": {
+    "decision": "quarantine",
+    "reasons": [
+      "integral_lly_sampled_not_global"
+    ],
+    "metadata": {
+      "mutation": "add_edge",
+      "topology_drift": 1.0,
+      "beta0_increase": 0,
+      "persistent_homology_drift": null,
+      "persistent_homology_bottleneck_drift": null,
+      "slot": 11,
+      "slot_generation": 1,
+      "reweighted_existing": false,
+      "role": 0,
+      "affected_edges": [
+        [
+          5,
+          7
+        ]
+      ],
+      "base_graph_version": 0,
+      "base_graph_hash": "d85243322362c7437e0e28442ff84fa43cd57de5bb5ed4126eaed02ad4b516e8",
+      "shadow_graph_version": 1,
+      "shadow_graph_hash": "5f1518cfcc766b7f7a7a0a7d15e1741dba00efed3e4cc4239bfff35b4a81d3a6",
+      "shadow_steps": 2,
+      "shadow_latent_delta_norm": 0.007822675630450249
+    }
+  }
+}
