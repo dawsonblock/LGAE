@@ -185,7 +185,10 @@ def test_credit_baseline_state_roundtrip(tmp_path: Path):
     restored.load_state(str(path))
     out = restored.get_outcomes()[0]
     assert out.advantage == pytest.approx(0.75)
-    assert restored.baseline_estimator.state_dict()["counts"] == tracker.baseline_estimator.state_dict()["counts"]
+    # v5.3.1: baseline estimator is now GraphFeatureBaseline by default.
+    # Verify round-trip fidelity by comparing the full state dict.
+    assert restored.baseline_estimator.state_dict() == tracker.baseline_estimator.state_dict()
+    assert type(restored.baseline_estimator).__name__ == type(tracker.baseline_estimator).__name__
 
 
 def test_new_production_policy_fields_are_governance_committed():

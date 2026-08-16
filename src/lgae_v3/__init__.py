@@ -66,7 +66,7 @@ from .ann_index import (
     ANNNeighborIndex, FAISSIndex, RandomProjectionANN, HNSWIndexNumpy,
 )
 from .production_dynamics import (
-    CurvatureHysteresisController, LatentEquilibriumBarrier, GraphHashBaseline,
+    CurvatureHysteresisController, LatentEquilibriumBarrier, GraphHashBaseline, GraphFeatureBaseline,
 )
 from .transactions import GraphTransaction, graph_transaction
 from .causal_edges import (
@@ -87,7 +87,7 @@ __all__ = [
     "mutation_to_spec", "mutation_from_spec",
     "LGAETrainCore", "train_step", "padded_markov_edges", "refresh_padded_markov_edges_", "padded_markov_edges_with_slots", "refresh_padded_markov_edges_with_slots_",
     "gauge_orthogonality_penalty", "ANNNeighborIndex", "FAISSIndex", "RandomProjectionANN",
-    "CurvatureHysteresisController", "LatentEquilibriumBarrier", "GraphHashBaseline",
+    "CurvatureHysteresisController", "LatentEquilibriumBarrier", "GraphHashBaseline", "GraphFeatureBaseline",
     "GraphTransaction", "graph_transaction",
 ]
 from .version import VERSION as __version__

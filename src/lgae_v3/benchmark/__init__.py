@@ -40,6 +40,17 @@ from .baselines import (
     ALL_BASELINES,
 )
 from .harness import BenchmarkHarness
+from .counterfactual import (
+    CounterfactualSample,
+    QNetwork,
+    QTrainingResult,
+    EvaluationResult,
+    TOPOLOGY_FAMILIES,
+    HELD_OUT_FAMILIES,
+    generate_counterfactual_dataset,
+    train_q_network,
+    evaluate_q_network,
+)
 
 __all__ = [
     "BenchmarkTask", "StructuralAction", "TaskState", "TaskOutcome",
@@ -52,4 +63,7 @@ __all__ = [
     "RandomActionController", "SpectralHeuristicController", "OracleController",
     "ALL_BASELINES",
     "BenchmarkHarness",
+    "CounterfactualSample", "QNetwork", "QTrainingResult", "EvaluationResult",
+    "TOPOLOGY_FAMILIES", "HELD_OUT_FAMILIES",
+    "generate_counterfactual_dataset", "train_q_network", "evaluate_q_network",
 ]

@@ -133,6 +133,9 @@ class StructuralExecutive:
         quarantine_uncertainty: float = 0.5,
         lr: float = 1e-3,
         policy_prior_weight: float = 0.35,
+        candidate_top_k: int = 64,
+        candidate_max_pairs: int = 512,
+        candidate_knn_per_node: int = 4,
     ):
         self.config = config or LGAEConfig()
         self.nu, self.lam, self.mu = float(nu), float(lam), float(mu)
@@ -140,6 +143,13 @@ class StructuralExecutive:
         self.lcb_threshold = float(lcb_threshold)
         self.quarantine_uncertainty = float(quarantine_uncertainty)
         self.policy_prior_weight = float(policy_prior_weight)
+        # v5.3.1: Hierarchical candidate retrieval parameters.
+        # Previous default was top-24 nodes / 256 pairs, which made correct
+        # endpoints outside top-24 impossible to find.  New defaults are
+        # top-64 / 512 pairs / 4 KNN-per-node, giving much higher recall.
+        self.candidate_top_k = int(candidate_top_k)
+        self.candidate_max_pairs = int(candidate_max_pairs)
+        self.candidate_knn_per_node = int(candidate_knn_per_node)
         self._obs_dim = self._compute_obs_dim()
         self.network = ExecutiveNetwork(self._obs_dim, hidden_dim=hidden_dim)
         # Target scorers use fixed local feature dimensions and therefore work
@@ -322,15 +332,66 @@ class StructuralExecutive:
 
         ids = torch.where(graph.valid)[0]
         if action == StructuralAction.ADD_EDGE:
-            # Candidate generation is bounded: learned node scores choose a small
-            # node set; all nonedges inside that set are scored as candidate pairs.
+            # v5.3.1: Hierarchical candidate retrieval.
+            #
+            # The previous implementation took top-24 nodes by learned score
+            # and enumerated all nonedges within that set (capped at 256).
+            # This creates a severe recall bottleneck: if the correct endpoint
+            # is outside the top-24, the correct mutation is *impossible*.
+            #
+            # The new approach has two stages:
+            #   1. Score-based retrieval: take a larger top-K (default 64)
+            #      by learned node score — this is the "high-confidence" pool.
+            #   2. Latent-distance retrieval: for each top-K node, find its
+            #      k nearest non-adjacent neighbors in latent space.  This
+            #      catches structurally useful endpoints that the node scorer
+            #      missed but that are geometrically close to high-score nodes.
+            #
+            # The two pools are merged, deduplicated, and capped at max_pairs
+            # (default 512).  This dramatically improves recall while keeping
+            # the candidate set bounded.
             with torch.no_grad(): nscore = self.node_target_scorer(node_feat).squeeze(-1)
-            top = torch.topk(nscore, k=min(24, graph.num_nodes)).indices.tolist()
+            top_k = min(getattr(self, 'candidate_top_k', 64), graph.num_nodes)
+            max_pairs = getattr(self, 'candidate_max_pairs', 512)
+            knn_per_node = getattr(self, 'candidate_knn_per_node', 4)
+            top = torch.topk(nscore, k=top_k).indices.tolist()
             existing = {tuple(sorted((int(graph.src[i]), int(graph.dst[i])))) for i in ids.tolist()}
-            pairs = [(u, v) for ii, u in enumerate(top) for v in top[ii+1:] if tuple(sorted((u,v))) not in existing]
+
+            # Stage 1: score-based pairs within top-K
+            pairs_set: set[tuple[int, int]] = set()
+            for ii, u in enumerate(top):
+                for v in top[ii+1:]:
+                    key = tuple(sorted((u, v)))
+                    if key not in existing:
+                        pairs_set.add(key)
+
+            # Stage 2: latent-distance KNN retrieval from top-K nodes
+            # For each top-K node, find its nearest non-adjacent neighbors.
+            if z.shape[0] > top_k and knn_per_node > 0:
+                top_nodes = torch.tensor(top, device=device)
+                z_top = z[top_nodes]  # [top_k, dim]
+                # Compute distances from top-K nodes to ALL nodes
+                # [top_k, N]
+                dists = torch.cdist(z_top, z)
+                # Mask out self and existing neighbors
+                for idx_in_top, u in enumerate(top):
+                    dists[idx_in_top, u] = float('inf')
+                    for i in ids.tolist():
+                        s, d = int(graph.src[i]), int(graph.dst[i])
+                        if s == u: dists[idx_in_top, d] = float('inf')
+                        if d == u: dists[idx_in_top, s] = float('inf')
+                # Take KNN for each top node
+                knn_indices = torch.topk(dists, k=min(knn_per_node, dists.shape[1]), largest=False, dim=-1).indices
+                for idx_in_top, u in enumerate(top):
+                    for v in knn_indices[idx_in_top].tolist():
+                        key = tuple(sorted((u, int(v))))
+                        if key not in existing:
+                            pairs_set.add(key)
+
+            pairs = sorted(pairs_set)
             if not pairs:
                 return {}
-            pairs = pairs[:256]
+            pairs = pairs[:max_pairs]
             src = torch.tensor([p[0] for p in pairs], device=device)
             dst = torch.tensor([p[1] for p in pairs], device=device)
             aff = torch.ones(len(pairs), device=device)

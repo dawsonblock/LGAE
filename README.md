@@ -1,6 +1,6 @@
 <div align="center">
 
-# LGAE v5.3.1
+# LGAE v5.3.2
 
 ### Governed Adaptive Geometry Engine
 
@@ -50,7 +50,7 @@ LGAE is a research-grade governed geometric learning engine and structural contr
 
 The core principle: **field dynamics are sparse and compiled; discrete evolution is transactional and eager; curvature diagnoses rather than directly dictates topology.**
 
-> **Naming.** The release is **LGAE v5.3.1**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.1`. The CLI is `lgae-v3`.
+> **Naming.** The release is **LGAE v5.3.2**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.1`. The CLI is `lgae-v3`.
 
 ---
 
@@ -331,7 +331,7 @@ The oracles above are verified against analytic ground truth and are the stronge
 
 - **No real-world generalization claim.** The structural-policy qualification uses six hand-authored synthetic tasks. "Held-out" seeds 101–105 reused the *same task structures* as training seeds 0–15, differing only in latent noise. The new `compare_baselines.py` adds truly held-out structurally-distinct variants, where the learned policy loses to a non-learned heuristic.
 - **Benchmark utility is constructed, not discovered.** Each task's `utility()` is written so the labeled "correct" action is the argmax of Δ-utility. The learned executive is graded on whether it recovers the action the utility was built to reward — a training-loop consistency check, not evidence that the governor diagnoses real structure.
-- **No baseline comparison until v5.3.1.** The new `compare_baselines.py` is the first comparison to random-action, spectral-heuristic, and oracle controllers. The learned executive does not yet beat the spectral heuristic on held-out tasks.
+- **No baseline comparison until v5.3.2.** The new `compare_baselines.py` is the first comparison to random-action, spectral-heuristic, and oracle controllers. The learned executive does not yet beat the spectral heuristic on held-out tasks.
 - **No deployment-safety proof.** The governor's transactional shadow/rollback/quarantine and fail-closed numerical behavior are engineering safeguards, not a formal safety argument.
 - **`torch.compile` not performance-qualified this release.** The fresh CPU Inductor smoke timed out during compilation; the compiled-kernel architecture is inherited from v5.2 and not newly measured. See `release_verification.json`.
 
@@ -402,7 +402,7 @@ pip install 'lgae-v3[ph]'    # installs ripser
 
 ## Release history
 
-### v5.3.1 — Integrity & baseline-comparison fixes (current)
+### v5.3.2 — Integrity & baseline-comparison fixes (current)
 
 - **Fixed nondeterministic policy qualification** (release-gate bug): seed was set after network init, making accuracy a random draw (86.7%–100% on identical runs). Now deterministic at 83.3%.
 - **Removed circular benchmark utility** in Task A (rewarded the correct action's signature directly); replaced with pure spectral gap.

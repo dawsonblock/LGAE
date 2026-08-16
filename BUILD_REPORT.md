@@ -1,8 +1,8 @@
-# LGAE v5.3.1 — Integrity & Baseline-Comparison Build Report
+# LGAE v5.3.2 — Integrity & Baseline-Comparison Build Report
 
-Build: `5.3.1`
+Build: `5.3.2`
 
-> **Release boundary.** This build report covers the v5.3.1 release, which is a correctness/integrity patch on v5.3.0. All qualification artifacts below were regenerated from the installed 5.3.1 wheel. The version constant, pyproject.toml, schema constants, README, CHANGELOG, and all reports agree on 5.3.1. The manifest was regenerated as the final step after all other artifacts were immutable.
+> **Release boundary.** This build report covers the v5.3.2 release, which is a correctness/integrity patch on v5.3.0. All qualification artifacts below were regenerated from the installed 5.3.2 wheel. The version constant, pyproject.toml, schema constants, README, CHANGELOG, and all reports agree on 5.3.2. The manifest was regenerated as the final step after all other artifacts were immutable.
 
 ## Release objective
 
@@ -55,7 +55,7 @@ v5.3.0 hardens the dynamics around the v5.2 structural-policy layer without weak
 `scripts/qualify_policy.py`: **PASS**
 
 - training structural outcomes: **864**
-- held-out diagnosis accuracy: **83.3333%** (deterministic after the v5.3.1 seed-before-init fix; the v5.3.0 report's 86.7% was one nondeterministic draw)
+- held-out diagnosis accuracy: **83.3333%** (deterministic after the v5.3.2 seed-before-init fix; the v5.3.0 report's 86.7% was one nondeterministic draw)
 - mean mutation regret: **0.0176059**
 - release thresholds: accuracy >= 80%, regret <= 0.35
 

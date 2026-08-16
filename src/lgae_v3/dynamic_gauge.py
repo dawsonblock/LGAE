@@ -40,6 +40,14 @@ class DynamicGaugeNetwork(nn.Module):
     The network takes the concatenation [z_i, z_j, c_t] and outputs
     the upper-triangular elements of a skew-symmetric matrix, which
     are then assembled into the full skew matrix.
+
+    v5.3.1: Added generator norm clamping (``generator_norm_max``) and
+    optional spectral normalization.  Because ``U_ij = U(z_i, z_j)``,
+    the gauge connection is a *state-dependent* map.  SO(d) membership
+    of U does not imply stability of the full map ``z → U(z)`` — the
+    Jacobian ``∂A/∂z`` can be large.  Constraining ``||A||_F`` bounds
+    the Cayley map's conditioning and limits the transport's sensitivity
+    to latent perturbations.
     """
 
     def __init__(
@@ -48,11 +56,15 @@ class DynamicGaugeNetwork(nn.Module):
         context_dim: int = 0,
         hidden_dim: int = 64,
         num_layers: int = 2,
+        generator_norm_max: float = 1.0,
+        use_spectral_norm: bool = False,
     ):
         super().__init__()
         self.latent_dim = latent_dim
         self.context_dim = context_dim
         self.hidden_dim = hidden_dim
+        self.generator_norm_max = float(generator_norm_max)
+        self.use_spectral_norm = bool(use_spectral_norm)
 
         # Input: [z_i, z_j, c_t] → [2*latent_dim + context_dim]
         input_dim = 2 * latent_dim + context_dim
@@ -61,14 +73,23 @@ class DynamicGaugeNetwork(nn.Module):
         # = d*(d-1)/2
         self.skew_dim = latent_dim * (latent_dim - 1) // 2
 
-        # Build MLP
+        # Build MLP with optional spectral normalization on hidden layers.
+        # Spectral norm constrains the Lipschitz constant of the MLP,
+        # which in turn bounds ||∂A/∂z|| and therefore the Jacobian of
+        # the gauge map z → U(z).
         layers: list[nn.Module] = []
         d = input_dim
         for _ in range(num_layers):
-            layers.append(nn.Linear(d, hidden_dim))
+            lin = nn.Linear(d, hidden_dim)
+            if self.use_spectral_norm:
+                lin = nn.utils.parametrizations.spectral_norm(lin)
+            layers.append(lin)
             layers.append(nn.ReLU())
             d = hidden_dim
-        layers.append(nn.Linear(d, self.skew_dim))
+        final = nn.Linear(d, self.skew_dim)
+        if self.use_spectral_norm:
+            final = nn.utils.parametrizations.spectral_norm(final)
+        layers.append(final)
         self.mlp = nn.Sequential(*layers)
 
     def forward(
@@ -102,6 +123,10 @@ class DynamicGaugeNetwork(nn.Module):
         skew_elements = self.mlp(x)  # [*, skew_dim]
 
         # Assemble into skew-symmetric matrix
+        # Note: norm clamping is NOT applied here.  It is applied in
+        # DynamicGaugeBank.matrices() *after* antisymmetrization, so that
+        # A_ji = -A_ij is preserved exactly (clamping A_fwd and A_rev
+        # separately would break the antisymmetry because ||A_fwd|| ≠ ||A_rev||).
         return self._assemble_skew(skew_elements)
 
     def _assemble_skew(self, elements: Tensor) -> Tensor:
@@ -150,6 +175,8 @@ class DynamicGaugeBank(nn.Module):
         parameterization: str = "cayley",
         device: torch.device | str | None = None,
         dtype: torch.dtype = torch.float32,
+        generator_norm_max: float = 1.0,
+        use_spectral_norm: bool = False,
     ):
         super().__init__()
         self.edge_capacity = int(edge_capacity)
@@ -163,6 +190,8 @@ class DynamicGaugeBank(nn.Module):
             context_dim=context_dim,
             hidden_dim=hidden_dim,
             num_layers=num_layers,
+            generator_norm_max=generator_norm_max,
+            use_spectral_norm=use_spectral_norm,
         )
 
         # Initialize network weights to near-zero so initial connections ≈ I
@@ -200,6 +229,18 @@ class DynamicGaugeBank(nn.Module):
         A_fwd = self.net(z_i, z_j, context)
         A_rev = self.net(z_j, z_i, context)
         A = 0.5 * (A_fwd - A_rev)
+
+        # v5.3.1: Clamp generator Frobenius norm *after* antisymmetrization.
+        # This preserves A_ji = -A_ij exactly (both get the same scale factor
+        # since ||A|| = ||-A||).  Large ||A||_F causes:
+        #   1. Cayley map conditioning problems (I+A near-singular)
+        #   2. Large Jacobian ∂U/∂z, making the state-dependent transport
+        #      unstable even though U stays in SO(d)
+        gen_max = self.net.generator_norm_max
+        if gen_max > 0:
+            norm = torch.linalg.matrix_norm(A, ord="fro", dim=(-2, -1))  # [E]
+            scale = (gen_max / (norm + 1e-8)).clamp(max=1.0)
+            A = A * scale.unsqueeze(-1).unsqueeze(-1)
 
         # Map to SO(d)
         if self.parameterization == "exp":

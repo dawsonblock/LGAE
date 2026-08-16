@@ -20,7 +20,7 @@ import numpy as np
 
 from .executive import StructuralAction
 from .version import VERSION
-from .production_dynamics import GraphHashBaseline
+from .production_dynamics import GraphHashBaseline, GraphFeatureBaseline
 
 
 @dataclass
@@ -88,7 +88,10 @@ class MutationCreditTracker:
         self._utility_history: deque = deque(maxlen=max(self.horizons) + 100)
         self._next_id: int = 0
         self._pending: dict[int, dict] = {}  # receipt_id → pending tracking
-        self.baseline_estimator = GraphHashBaseline()
+        # v5.3.1: use feature-based baseline by default for lower-variance
+        # advantage estimation.  Hash baseline retained as fallback.
+        self.baseline_estimator: GraphHashBaseline | GraphFeatureBaseline = GraphFeatureBaseline()
+        self._baseline_type = type(self.baseline_estimator).__name__
 
     def record_mutation(
         self,
@@ -103,6 +106,7 @@ class MutationCreditTracker:
         config_governance_hash: str,
         metadata: dict[str, Any] | None = None,
         counterfactual_baseline: float | None = None,
+        graph_features: Any | None = None,
     ) -> MutationReceipt:
         """Record a committed mutation and return its receipt."""
         receipt = MutationReceipt(
@@ -127,6 +131,7 @@ class MutationCreditTracker:
             "baseline_utility": None,  # Set on first record_utility call
             "graph_hash_before": str(graph_hash_before),
             "counterfactual_baseline": None if counterfactual_baseline is None else float(counterfactual_baseline),
+            "graph_features": graph_features,
         }
         self._next_id += 1
         return receipt
@@ -173,12 +178,21 @@ class MutationCreditTracker:
 
         graph_hash = str(pending.get("graph_hash_before", receipt.graph_hash_before))
         explicit_baseline = pending.get("counterfactual_baseline")
-        baseline_return = (
-            float(explicit_baseline) if explicit_baseline is not None
-            else self.baseline_estimator.predict(graph_hash)
-        )
+        features = pending.get("graph_features")
+        if isinstance(self.baseline_estimator, GraphFeatureBaseline):
+            baseline_return = (
+                float(explicit_baseline) if explicit_baseline is not None
+                else self.baseline_estimator.predict(graph_hash, features)
+            )
+            self.baseline_estimator.update(graph_hash, float(discounted_return), features)
+        else:
+            baseline_return = (
+                float(explicit_baseline) if explicit_baseline is not None
+                else self.baseline_estimator.predict(graph_hash)
+            )
+            self.baseline_estimator.update(graph_hash, float(discounted_return))
+
         advantage = float(discounted_return) - float(baseline_return)
-        self.baseline_estimator.update(graph_hash, float(discounted_return))
 
         # Prediction error is measured against the lower-variance advantage target.
         prediction_error = abs(advantage - pending["predicted_delta_u"])
@@ -318,6 +332,7 @@ class MutationCreditTracker:
             },
             "utility_history": [[int(step), float(util)] for step, util in self._utility_history],
             "baseline_estimator": self.baseline_estimator.state_dict(),
+            "baseline_type": type(self.baseline_estimator).__name__,
             "version": VERSION,
         }
         with open(path, "w") as f:
@@ -381,4 +396,10 @@ class MutationCreditTracker:
         self._utility_history.clear()
         for step, util in state.get("utility_history", []):
             self._utility_history.append((int(step), float(util)))
-        self.baseline_estimator = GraphHashBaseline.from_state_dict(state.get("baseline_estimator", {}))
+        baseline_type = state.get("baseline_type", "GraphHashBaseline")
+        baseline_state = state.get("baseline_estimator", {})
+        if baseline_type == "GraphFeatureBaseline":
+            self.baseline_estimator = GraphFeatureBaseline.from_state_dict(baseline_state)
+        else:
+            self.baseline_estimator = GraphHashBaseline.from_state_dict(baseline_state)
+        self._baseline_type = baseline_type

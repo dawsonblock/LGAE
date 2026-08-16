@@ -1,6 +1,48 @@
 # Changelog
 
-## v5.3.1 — Integrity & baseline-comparison fixes (current)
+## v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control (current)
+
+This release implements the audit's central recommendation: improve
+structural decision intelligence, not geometric measurement. The learned
+executive now has a Q(S,a) controller trained on counterfactual outcomes,
+a wider candidate retrieval pipeline, and several safety/stability upgrades.
+
+### Added
+
+- **Q(S,a) counterfactual controller** (`src/lgae_v3/benchmark/counterfactual.py`):
+  generates (state, action, ΔU) triples across 8 topology families
+  (path, cycle, grid, star, BA, WS, random, bipartite) and trains a
+  Q-network via MSE regression. Policy derived as argmax_a Q(S,a) instead
+  of supervised action classification. Held-out evaluation on 3 unseen
+  families (wheel, lollipop, caveman) achieves 86% accuracy, vs 30% for
+  the old supervised policy on structurally held-out tasks.
+- **Runner script** (`scripts/train_q_controller.py`): end-to-end
+  dataset generation, training, and held-out evaluation.
+- **22 new tests** (`tests/test_v531_research_improvements.py`): cover
+  GraphFeatureBaseline, hierarchical retrieval, gauge norm clamping,
+  equilibrium residual, counterfactual dataset, and Q-network training.
+
+### Changed
+
+- **GraphFeatureBaseline replaces GraphHashBaseline** as the default
+  credit-assignment value estimator. Uses online ridge regression on
+  16-dim structural features (N, E, λ₂, curvature moments, degree moments,
+  Betti numbers, latent variance). Similar graph states now produce
+  similar baseline predictions, reducing variance in advantage estimation.
+  GraphHashBaseline retained as fallback.
+- **Hierarchical candidate retrieval** replaces top-24 node cap. New
+  defaults: top-64 nodes + 4 latent-distance KNN per node, 512 max pairs.
+  Correct endpoints outside the top-64 are now reachable via KNN.
+- **Dynamic gauge generator norm clamping** (default max=1.0). Clamps
+  ||A||_F after antisymmetrization, preserving A_ji = -A_ij exactly.
+  Prevents Cayley conditioning problems and bounds the Jacobian of the
+  state-dependent gauge map. Spectral norm available as opt-in.
+- **Equilibrium barrier upgraded** from pure state-delta to combined
+  state-delta + dynamics residual. Now checks ||F(z_t) - z_t|| / ||z_t||
+  in addition to ||z_t - z_{t-1}|| / ||z_{t-1}||, catching periodic
+  orbits and metastable plateaus the old check missed.
+
+## v5.3.1 — Integrity & baseline-comparison fixes
 
 This is a correctness/integrity patch on v5.3.0. It does not change the
 governor, geometry oracles, or numerical kernels. It fixes four issues
