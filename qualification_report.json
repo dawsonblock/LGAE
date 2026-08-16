@@ -1,6 +1,6 @@
 {
-  "schema": "LGAE_QUALIFICATION_V5_3_0",
-  "version": "5.3.0",
+  "schema": "LGAE_QUALIFICATION_V5_3_1",
+  "version": "5.3.1",
   "graphs": {
     "K2": {
       "lly": {

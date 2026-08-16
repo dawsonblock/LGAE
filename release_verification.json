@@ -1,17 +1,19 @@
 {
-  "release": "LGAE v5.3.0 \u2014 Production Dynamics Hardening",
-  "version": "5.3.0",
-  "test_collection": 559,
+  "release": "LGAE v5.3.1 — Integrity & baseline-comparison fixes",
+  "version": "5.3.1",
+  "test_collection": 573,
   "test_status": "PASS_SINGLE_INVOCATION",
-  "tests_passed": 559,
-  "test_note": "Full suite passes in a single pytest invocation (~15s on a modern laptop). The v5.3.0 'PASS_IN_BOUNDED_BATCHES' claim was not reproducible and has been corrected.",
+  "tests_passed": 573,
+  "test_note": "Full suite passes in a single pytest invocation (~15s) from the installed wheel (no PYTHONPATH override).",
   "geometry_qualification": {
     "passed": true,
-    "checks": 9
+    "checks": 9,
+    "schema": "LGAE_QUALIFICATION_V5_3_1"
   },
   "production_dynamics_qualification": {
     "passed": true,
-    "checks": 8
+    "checks": 8,
+    "schema": "LGAE_QUALIFICATION_V5_3_1"
   },
   "policy_qualification": {
     "passed": true,
@@ -21,6 +23,7 @@
     "accuracy_threshold": 0.8,
     "regret_threshold": 0.35,
     "deterministic": true,
+    "schema": "LGAE_QUALIFICATION_V5_3_1",
     "note": "Deterministic after the v5.3.1 seed-before-network-init fix. The v5.3.0 report's 86.7% was one nondeterministic draw (observed range 86.7%-100%)."
   },
   "baseline_comparison": {
@@ -29,19 +32,26 @@
     "in_distribution": {"random": 0.1, "spectral_heuristic": 0.4667, "learned": 0.8333, "oracle": 1.0},
     "held_out_structure": {"random": 0.1, "spectral_heuristic": 0.6, "learned": 0.3, "oracle": 1.0}
   },
+  "real_world_experiment": {
+    "script": "scripts/run_real_experiment.py",
+    "dataset": "karate_club",
+    "result": "negative",
+    "note": "LGAE governance does not improve community recovery over raw baseline on Karate Club (governor commits zero mutations on 34-node graph).",
+    "accuracy": {"raw": 0.7059, "random_add": 0.7353, "spectral_heuristic": 0.7941, "lgae_governed": 0.6765}
+  },
   "wheel": {
-    "path": "dist/lgae_v3-5.3.0-py3-none-any.whl",
-    "sha256": "b389af093046145c51a9273fe37a4b76727bd774d7ebf08d5352bfac7e1eb6d2",
+    "path": "dist/lgae_v3-5.3.1-py3-none-any.whl",
+    "sha256": "96839426de17b9366a6cc1cf49c740ba7417474accc637ec90c5425945a56e22",
     "offline_build": "PASS",
     "isolated_target_install": "PASS",
-    "installed_version": "5.3.0",
-    "cli_version": "5.3.0"
+    "installed_version": "5.3.1",
+    "cli_version": "5.3.1"
   },
   "torch_compile": {
     "architecture": "fixed-shape sparse numerical kernels; eager discrete evolution",
     "fresh_cpu_inductor_smoke": "TIMEOUT_DURING_COMPILE",
     "release_claim": "NOT_NEWLY_PERFORMANCE_QUALIFIED",
-    "note": "The compiled kernel architecture is inherited from v5.2; no new v5.3 Inductor performance claim is made because this container exceeded the compile window."
+    "note": "The compiled kernel architecture is inherited from v5.2; no new Inductor performance claim is made because the compile container exceeded the compile window."
   },
   "qualification_artifacts": [
     "qualification_report.json",
@@ -50,8 +60,10 @@
   ],
   "integrity": {
     "manifest": "PASS",
+    "manifest_note": "MANIFEST.sha256.json regenerated as the final step after all other artifacts were immutable. Verified with generate_manifest.py --check.",
     "zip_crc": "PASS",
     "zip_path_safety": "PASS",
     "zip_manifest_rehash": "PASS"
-  }
+  },
+  "release_boundary_note": "All qualification artifacts in this file were regenerated from the installed 5.3.1 wheel, not from PYTHONPATH=src. The version constant, pyproject.toml, schema constants, README, and CHANGELOG all agree on 5.3.1. The manifest was regenerated last."
 }

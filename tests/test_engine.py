@@ -1,6 +1,7 @@
 import torch
 from lgae_v3 import LGAEEngine,LGAEConfig
 from lgae_v3.types import make_graph_buffers
+from lgae_v3.version import VERSION
 
 def test_engine_smoke_and_compatibility_imports():
     from lgae_v3.core.geometry_field import GeometryField
@@ -20,7 +21,7 @@ def test_engine_smoke_and_compatibility_imports():
 def test_cli_demo_serializes(capsys):
     from lgae_v3.cli import main
     assert main(["demo","--nodes","6","--steps","1"])==0
-    assert '"version": "5.3.0"' in capsys.readouterr().out
+    assert f'"version": "{VERSION}"' in capsys.readouterr().out
 
 def test_quarantine_resolution_does_not_require_parameter_replacement():
     from lgae_v3.mutations import AddEdge

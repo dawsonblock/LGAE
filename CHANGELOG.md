@@ -1,6 +1,6 @@
 # Changelog
 
-## v5.3.1 — Integrity & baseline-comparison fixes (unreleased)
+## v5.3.1 — Integrity & baseline-comparison fixes (current)
 
 This is a correctness/integrity patch on v5.3.0. It does not change the
 governor, geometry oracles, or numerical kernels. It fixes four issues
