@@ -360,3 +360,49 @@ def config_structural_hash(cfg: LGAEConfig) -> str:
 def config_governance_hash(cfg: LGAEConfig) -> str:
     """Fingerprint over governance config fields (audit thresholds, mutation policies)."""
     return _config_fingerprint(cfg, _GOVERNANCE_FIELDS)
+
+
+# ---------------------------------------------------------------------------
+# v5.3.2: Named configuration profiles.
+#
+# The audit found that the default LGAEConfig disables key safety machinery
+# (curvature_ema_enabled, equilibrium_barrier_enabled) and sets several safety
+# limits to None (monitor-only).  This is appropriate for research but not
+# for production.
+#
+# ProductionConfig enables all hardening features and sets bounded thresholds.
+# ResearchConfig is the permissive default (identical to LGAEConfig()).
+# ---------------------------------------------------------------------------
+
+def ProductionConfig() -> LGAEConfig:
+    """Strict configuration with all safety machinery enabled.
+
+    - curvature_ema_enabled = True
+    - equilibrium_barrier_enabled = True
+    - All safety limits have bounded thresholds (not None)
+    - persistent_homology required for structural surgery
+    - Stricter audit sampling
+    """
+    cfg = LGAEConfig()
+    # Enable hardening features
+    cfg.mutation.curvature_ema_enabled = True
+    cfg.mutation.equilibrium_barrier_enabled = True
+    # Set bounded safety thresholds (audit found these defaulted to None)
+    cfg.audit.max_integral_lly_deficit = 0.5
+    cfg.audit.max_operator_discrepancy = 0.1
+    cfg.audit.max_cde_residual = 0.1
+    cfg.audit.entropic_drop_tolerance = 0.5
+    cfg.audit.max_role_lly_deficit = 0.5
+    cfg.audit.max_ph_drift = 0.3
+    # Require persistent homology for structural surgery
+    cfg.audit.require_persistent_homology = True
+    return validate_config(cfg)
+
+
+def ResearchConfig() -> LGAEConfig:
+    """Permissive configuration for research and experimentation.
+
+    Identical to the default LGAEConfig().  Safety machinery is available
+    but not forced on.  Safety limits are monitor-only (None).
+    """
+    return LGAEConfig()

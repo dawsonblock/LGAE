@@ -46,7 +46,7 @@ from .topology import (
     persistent_homology_drift,
     persistent_homology_bottleneck_drift,
 )
-from .types import AuditSnapshot, GraphBuffers, MutationDecision, MutationResult
+from .types import AuditSnapshot, GraphBuffers, MutationDecision, MutationResult, CertificationLevel
 
 
 @dataclass(slots=True)
@@ -467,12 +467,29 @@ class GeometryGovernor:
             decision = MutationDecision.ACCEPT
         if not reasons:
             reasons = ["all_enabled_constraints_passed"]
+        # v5.3.2: Determine certification level based on audit coverage.
+        # The governor samples a subset of edges/nodes for expensive
+        # diagnostics (Ollivier, Bakry-Émery, CDE).  "Audit pass" does
+        # not imply "global graph safe" when only a sample was checked.
+        # We compare the config's audit sample sizes against the graph
+        # size from the snapshot's topology_signature.
+        num_nodes = int(after.topology_signature.get("num_nodes", 0))
+        num_edges = int(after.topology_signature.get("num_edges", 0))
+        curvature_edges_audited = int(a.exact_lly_top_k) if a.exact_lly_top_k else 0
+        bakry_audited = int(a.bakry_nodes) if a.bakry_nodes else 0
+        if num_edges > 0 and curvature_edges_audited >= num_edges and bakry_audited >= num_nodes:
+            cert_level = CertificationLevel.CERTIFIED_GLOBAL
+        elif curvature_edges_audited > 0 or bakry_audited > 0:
+            cert_level = CertificationLevel.SAMPLED_LOCAL
+        else:
+            cert_level = CertificationLevel.HEURISTIC_PROXY
         meta = {
             "mutation": transition_name,
             "topology_drift": drift,
             "beta0_increase": beta0_inc,
             "persistent_homology_drift": ph_drift,
             "persistent_homology_bottleneck_drift": ph_bottleneck_drift,
+            "certification_level": cert_level.value,
             **(metadata or {}),
         }
         return MutationResult(decision, reasons, before=before, after=after, metadata=meta)

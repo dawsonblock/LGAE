@@ -2,11 +2,56 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from typing import Any, Protocol
+from enum import Enum
 import math
 
 import torch
 
 from .types import EdgeRole, GraphBuffers, edge_role_code
+
+
+class MutationAuthorityLevel(str, Enum):
+    """v5.3.2: Classification of mutation risk levels.
+
+    The audit found that the system treats a 2% edge-weight change and
+    fiber-dimensional expansion as philosophically equivalent actions.
+    This enum distinguishes three levels with increasing evidence requirements:
+
+    - REVERSIBLE: Small edge reweighting or gauge adjustments.  Easily
+      rolled back.  Low evidence threshold.
+    - STRUCTURAL: Add/prune edges, topology changes.  Harder to reverse
+      but still within the graph's existing capacity.  Medium threshold.
+    - IRREVERSIBLE: Changes in representation size, operator family,
+      semantic graph roles, or persistent state structure.  Cannot be
+      cleanly rolled back.  High evidence threshold.
+    """
+    REVERSIBLE = "reversible"
+    STRUCTURAL = "structural"
+    IRREVERSIBLE = "irreversible"
+
+
+def mutation_authority_level(mutation: Any) -> MutationAuthorityLevel:
+    """Classify a mutation by its authority/risk level.
+
+    Used by the governor to apply stricter evidence requirements for
+    higher-risk mutations.
+    """
+    name = getattr(mutation, "name", "").lower()
+    if isinstance(mutation, type):
+        name = mutation.__name__.lower()
+
+    # Irreversible: fiber spawn/prune (changes representation dimension),
+    # gauge changes (changes operator family)
+    if "spawn" in name or "prune_fiber" in name or "change_gauge" in name:
+        return MutationAuthorityLevel.IRREVERSIBLE
+    # Structural: add/prune edges (changes topology)
+    if "add" in name or "prune_edge" in name:
+        return MutationAuthorityLevel.STRUCTURAL
+    # Reversible: reweighting, Ricci flow (changes weights, not topology)
+    if "reweight" in name or "ricci" in name:
+        return MutationAuthorityLevel.REVERSIBLE
+    # Default to structural for unknown mutations (conservative)
+    return MutationAuthorityLevel.STRUCTURAL
 
 
 class GraphMutation(Protocol):

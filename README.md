@@ -50,7 +50,7 @@ LGAE is a research-grade governed geometric learning engine and structural contr
 
 The core principle: **field dynamics are sparse and compiled; discrete evolution is transactional and eager; curvature diagnoses rather than directly dictates topology.**
 
-> **Naming.** The release is **LGAE v5.3.2**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.1`. The CLI is `lgae-v3`.
+> **Naming.** The release is **LGAE v5.3.2**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.2`. The CLI is `lgae-v3`.
 
 ---
 

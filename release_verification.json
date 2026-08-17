@@ -1,10 +1,10 @@
 {
   "release": "LGAE v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control",
   "version": "5.3.2",
-  "test_collection": 595,
+  "test_collection": 607,
   "test_status": "PASS_SINGLE_INVOCATION",
-  "tests_passed": 595,
-  "test_note": "Full suite passes in a single pytest invocation (~20s) from the installed wheel (no PYTHONPATH override). +22 new tests for v5.3.2 research improvements.",
+  "tests_passed": 607,
+  "test_note": "Full suite passes in a single pytest invocation (~20s) from the installed wheel (no PYTHONPATH override). +34 new tests for v5.3.2 research and safety improvements.",
   "geometry_qualification": {
     "passed": true,
     "checks": 9,
@@ -40,11 +40,16 @@
     "dynamic_gauge_norm_clamping": "Added generator Frobenius norm clamping (default max=1.0) after antisymmetrization. Prevents Cayley conditioning problems and bounds the Jacobian of the state-dependent gauge map. Spectral norm available as opt-in.",
     "equilibrium_barrier_upgrade": "Upgraded from pure state-delta to combined state-delta + dynamics residual. Now checks ||F(z_t) - z_t|| / ||z_t|| in addition to ||z_t - z_{t-1}|| / ||z_{t-1}||, catching periodic orbits and metastable plateaus that the old check missed.",
     "counterfactual_dataset": "New module generates (state, action, ΔU) triples across 8 topology families (path, cycle, grid, star, BA, WS, random, bipartite) with 3 held-out families (wheel, lollipop, caveman).",
-    "q_learning": "Q(S,a) trained via MSE regression on counterfactual outcomes. Policy derived as argmax_a Q(S,a) instead of supervised action classification."
+    "q_learning": "Q(S,a) trained via MSE regression on counterfactual outcomes. Policy derived as argmax_a Q(S,a) instead of supervised action classification.",
+    "production_config": "ProductionConfig() factory enables all hardening features (curvature_ema, equilibrium_barrier) and sets bounded safety thresholds. ResearchConfig() is the permissive default.",
+    "certification_levels": "Governor now reports CERTIFIED_GLOBAL, SAMPLED_LOCAL, or HEURISTIC_PROXY in mutation result metadata, distinguishing full audits from sampled checks.",
+    "mutation_authority_levels": "Mutations classified as REVERSIBLE (reweighting), STRUCTURAL (add/prune edges), or IRREVERSIBLE (fiber spawn/prune, gauge changes), enabling tiered evidence requirements.",
+    "scale_qualification": "New script (scripts/scale_qualification.py) measures empirical complexity curves for diffusion, audit, mutation, and checkpoint operations across N=100 to N=3000.",
+    "checkpoint_merkle_root": "Safe checkpoint format now includes a Merkle root over all checkpoint files, providing cryptographic provenance without requiring a trusted signature."
   },
   "wheel": {
     "path": "dist/lgae_v3-5.3.2-py3-none-any.whl",
-    "sha256": "2cd951cb0cbea49c607e274fa1654048f3b0f34bdba9db9a13ceeac9032e4b00",
+    "sha256": "473fcf532aeb7676866c52ecd2e711c7e6f719f5847cac608557f210979ed5cd",
     "installed_version": "5.3.2",
     "cli_version": "5.3.2"
   },

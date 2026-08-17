@@ -798,10 +798,40 @@ class LGAEEngine(nn.Module):
             "files": ["tensors.safetensors", "graph.json", "controller.json", "governance.json"],
             "tensor_keys": sorted(tensors.keys()),
         }
-        (dir_path / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2))
+        # v5.3.2: Write all data files first, then compute Merkle root.
+        # The Merkle root is a cryptographic commitment to the checkpoint's
+        # full contents.  It proves provenance (the checkpoint was produced
+        # by someone with this exact state) without requiring a trusted
+        # signature.  Ed25519 signing can be layered on top later.
         (dir_path / "graph.json").write_text(json.dumps(graph_json, sort_keys=True, indent=2, default=str))
         (dir_path / "controller.json").write_text(json.dumps(controller_json, sort_keys=True, indent=2, default=str))
         (dir_path / "governance.json").write_text(json.dumps(governance_json, sort_keys=True, indent=2, default=str))
+
+        # Compute Merkle root over all checkpoint files.
+        # Leaf = SHA-256(file_contents), sorted and hashed pairwise.
+        file_hashes = {}
+        for fname in manifest["files"]:
+            fpath = dir_path / fname
+            h = hashlib.sha256(fpath.read_bytes()).hexdigest()
+            file_hashes[fname] = h
+        # Build Merkle tree from sorted leaf hashes
+        leaves = sorted(file_hashes.values())
+        if not leaves:
+            merkle_root = hashlib.sha256(b"").hexdigest()
+        elif len(leaves) == 1:
+            merkle_root = leaves[0]
+        else:
+            level = leaves
+            while len(level) > 1:
+                if len(level) % 2 == 1:
+                    level = level + [level[-1]]  # duplicate last
+                level = [hashlib.sha256(
+                    (level[i] + level[i + 1]).encode()
+                ).hexdigest() for i in range(0, len(level), 2)]
+            merkle_root = level[0]
+        manifest["file_hashes"] = file_hashes
+        manifest["merkle_root"] = merkle_root
+        (dir_path / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2))
 
     @torch.no_grad()
     def load_checkpoint_(

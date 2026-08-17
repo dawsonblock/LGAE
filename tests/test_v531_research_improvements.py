@@ -1,4 +1,4 @@
-"""Tests for v5.3.1 research improvements.
+"""Tests for v5.3.1/v5.3.2 research improvements.
 
 Covers:
 - GraphFeatureBaseline (replaces GraphHashBaseline)
@@ -7,6 +7,10 @@ Covers:
 - Latent equilibrium barrier with dynamics residual
 - Counterfactual dataset generation
 - Q-network training and evaluation
+- ProductionConfig vs ResearchConfig
+- Governor certification levels (CERTIFIED_GLOBAL / SAMPLED_LOCAL)
+- Mutation authority levels (reversible / structural / irreversible)
+- Checkpoint Merkle root
 """
 import pytest
 import torch
@@ -229,3 +233,120 @@ class TestQNetworkTraining:
         assert len(results) == 1
         assert results[0].family == "path"
         assert 0.0 <= results[0].accuracy <= 1.0
+
+
+# ===========================================================================
+# ProductionConfig vs ResearchConfig tests
+# ===========================================================================
+
+class TestConfigProfiles:
+    def test_production_config_enables_hardening(self):
+        from lgae_v3 import ProductionConfig
+        cfg = ProductionConfig()
+        assert cfg.mutation.curvature_ema_enabled is True
+        assert cfg.mutation.equilibrium_barrier_enabled is True
+
+    def test_production_config_sets_bounded_thresholds(self):
+        from lgae_v3 import ProductionConfig
+        cfg = ProductionConfig()
+        assert cfg.audit.max_integral_lly_deficit is not None
+        assert cfg.audit.max_operator_discrepancy is not None
+        assert cfg.audit.max_cde_residual is not None
+        assert cfg.audit.entropic_drop_tolerance is not None
+
+    def test_research_config_is_permissive(self):
+        from lgae_v3 import ResearchConfig
+        cfg = ResearchConfig()
+        assert cfg.mutation.curvature_ema_enabled is False
+        assert cfg.mutation.equilibrium_barrier_enabled is False
+        assert cfg.audit.max_integral_lly_deficit is None
+
+    def test_production_config_validates(self):
+        from lgae_v3 import ProductionConfig
+        cfg = ProductionConfig()  # should not raise
+        assert cfg is not None
+
+
+# ===========================================================================
+# Governor certification level tests
+# ===========================================================================
+
+class TestCertificationLevel:
+    def test_certification_level_enum_exists(self):
+        from lgae_v3 import CertificationLevel
+        assert CertificationLevel.CERTIFIED_GLOBAL.value == "certified_global"
+        assert CertificationLevel.SAMPLED_LOCAL.value == "sampled_local"
+        assert CertificationLevel.HEURISTIC_PROXY.value == "heuristic_proxy"
+
+    def test_governor_sets_certification_level(self):
+        from lgae_v3 import LGAEConfig, LGAEEngine, make_graph_buffers
+        from lgae_v3.mutations import AddEdge
+        cfg = LGAEConfig()
+        cfg.fiber.d_base = 2; cfg.fiber.d_max = 4
+        cfg.audit.exact_lly_top_k = 10; cfg.audit.bakry_nodes = 10
+        e = LGAEEngine(make_graph_buffers(5, [(0,1),(1,2),(2,3),(3,4)], capacity=8), cfg)
+        r = e.evaluate_and_maybe_commit(AddEdge(0, 2))
+        assert "certification_level" in r.metadata
+        assert r.metadata["certification_level"] in ("certified_global", "sampled_local", "heuristic_proxy")
+
+
+# ===========================================================================
+# Mutation authority level tests
+# ===========================================================================
+
+class TestMutationAuthorityLevel:
+    def test_authority_level_enum_exists(self):
+        from lgae_v3 import MutationAuthorityLevel
+        assert MutationAuthorityLevel.REVERSIBLE.value == "reversible"
+        assert MutationAuthorityLevel.STRUCTURAL.value == "structural"
+        assert MutationAuthorityLevel.IRREVERSIBLE.value == "irreversible"
+
+    def test_add_edge_is_structural(self):
+        from lgae_v3 import AddEdge, MutationAuthorityLevel, mutation_authority_level
+        assert mutation_authority_level(AddEdge(0, 1)) == MutationAuthorityLevel.STRUCTURAL
+
+    def test_prune_edge_is_structural(self):
+        from lgae_v3 import PruneEdge, MutationAuthorityLevel, mutation_authority_level
+        assert mutation_authority_level(PruneEdge(0, 1)) == MutationAuthorityLevel.STRUCTURAL
+
+    def test_reweight_is_reversible(self):
+        from lgae_v3 import ReweightEdge, MutationAuthorityLevel, mutation_authority_level
+        assert mutation_authority_level(ReweightEdge(0, 1, 1.5)) == MutationAuthorityLevel.REVERSIBLE
+
+
+# ===========================================================================
+# Checkpoint Merkle root tests
+# ===========================================================================
+
+class TestCheckpointMerkleRoot:
+    def test_safe_checkpoint_has_merkle_root(self, tmp_path):
+        from lgae_v3 import LGAEConfig, LGAEEngine, make_graph_buffers
+        import json
+        cfg = LGAEConfig()
+        cfg.fiber.d_base = 4; cfg.fiber.d_max = 8; cfg.fiber.gauge_dim = 2
+        e = LGAEEngine(make_graph_buffers(5, [(0,1),(1,2),(2,3),(3,4)], capacity=8), cfg)
+        e.diffuse_(eta=0.01)
+        ckpt_dir = tmp_path / "test.ckpt"
+        e.save_checkpoint(str(ckpt_dir))
+        manifest = json.loads((ckpt_dir / "manifest.json").read_text())
+        assert "merkle_root" in manifest
+        assert len(manifest["merkle_root"]) == 64  # SHA-256 hex
+        assert "file_hashes" in manifest
+        assert len(manifest["file_hashes"]) == 4
+
+    def test_merkle_root_changes_on_content_change(self, tmp_path):
+        from lgae_v3 import LGAEConfig, LGAEEngine, make_graph_buffers
+        import json
+        cfg = LGAEConfig()
+        cfg.fiber.d_base = 4; cfg.fiber.d_max = 8; cfg.fiber.gauge_dim = 2
+        e = LGAEEngine(make_graph_buffers(5, [(0,1),(1,2),(2,3),(3,4)], capacity=8), cfg)
+        e.diffuse_(eta=0.01)
+        ckpt1 = tmp_path / "ckpt1.ckpt"
+        e.save_checkpoint(str(ckpt1))
+        # Diffuse more to change state
+        e.diffuse_(eta=0.5)
+        ckpt2 = tmp_path / "ckpt2.ckpt"
+        e.save_checkpoint(str(ckpt2))
+        m1 = json.loads((ckpt1 / "manifest.json").read_text())
+        m2 = json.loads((ckpt2 / "manifest.json").read_text())
+        assert m1["merkle_root"] != m2["merkle_root"]

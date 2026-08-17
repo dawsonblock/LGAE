@@ -5,7 +5,7 @@
     ".gitignore",
     "MANIFEST.sha256.json"
   ],
-  "file_count": 122,
+  "file_count": 123,
   "files": [
     {
       "path": ".github/workflows/ci.yml",
@@ -30,7 +30,7 @@
     {
       "path": "README.md",
       "bytes": 23080,
-      "sha256": "830585149e7eb5062a46d9fe68fef365f6167f7489ab33fd796c764c5116aea2"
+      "sha256": "b4b3a139f67708419077f571d6e4110fdf7de2c5a461787ea84428cc52b1af4c"
     },
     {
       "path": "configs/default.yaml",
@@ -89,8 +89,8 @@
     },
     {
       "path": "example_output.txt",
-      "bytes": 3909,
-      "sha256": "b375ab7f8fd3c9c6751920454b388187f2fd62835b7a44a5514f842dd62e1919"
+      "bytes": 3955,
+      "sha256": "7bcbb399f84797ee763243a5158fd16a0b5605679b286f1339cf8e928b9a348c"
     },
     {
       "path": "examples/run_lgae_v3.py",
@@ -119,8 +119,8 @@
     },
     {
       "path": "release_verification.json",
-      "bytes": 4119,
-      "sha256": "0a728f517f7999bb3e96d827997ce4e6ded18dad1548034a2ed87df7e4757856"
+      "bytes": 5098,
+      "sha256": "5baee1d5ea3876737ef8a9f6bdb9a9a93ee5336c2eb7b9ca7fcd788b7578756d"
     },
     {
       "path": "requirements-verified.txt",
@@ -173,14 +173,19 @@
       "sha256": "149dddd63ba6c87fe7c677b2d8db3dad6b7341b3bbcc05069d1ad9c12bb427b5"
     },
     {
+      "path": "scripts/scale_qualification.py",
+      "bytes": 5213,
+      "sha256": "8f8148473a38a093e060009cfe214ff1d29e6e045672250adb3f7bea5c62da08"
+    },
+    {
       "path": "scripts/train_q_controller.py",
       "bytes": 4865,
       "sha256": "544910de1d24953bc9bd77e8b2820afc8c5f556a6138fbe6233f98177a971d5d"
     },
     {
       "path": "src/lgae_v3/__init__.py",
-      "bytes": 3940,
-      "sha256": "f0de3dd141d96c1005826243634017819b129ac5e4739c79d342d9a57d811e38"
+      "bytes": 4170,
+      "sha256": "4055acdc1f1dfafa381d425cf29b55c0d8460a8378fdce249099f54ccaaef0ec"
     },
     {
       "path": "src/lgae_v3/action_bridge.py",
@@ -249,8 +254,8 @@
     },
     {
       "path": "src/lgae_v3/config.py",
-      "bytes": 17068,
-      "sha256": "631fa056aee86dec0b04727882a22afde50b32d96878f422e0196c79d3c8cd12"
+      "bytes": 18887,
+      "sha256": "6331e4c142a6e770dcacf136c6f0c3500ecfb8e5d57c98be46da067e2332ecf1"
     },
     {
       "path": "src/lgae_v3/consolidation.py",
@@ -329,8 +334,8 @@
     },
     {
       "path": "src/lgae_v3/evolution.py",
-      "bytes": 56785,
-      "sha256": "598f2c419e4b900ef870f8031a3d9e01a6fdd67e0604fd369787e8c2e066e359"
+      "bytes": 58189,
+      "sha256": "1198844aae382cc6c8cf8eaf15663e7925437589493b8b06b73945b0f9b05cb3"
     },
     {
       "path": "src/lgae_v3/executive.py",
@@ -344,8 +349,8 @@
     },
     {
       "path": "src/lgae_v3/governor.py",
-      "bytes": 37386,
-      "sha256": "189afefffe4e3fc86ed8dbcdf2e9e4ee5ba78ca826708f5f25ae90a5efd97f2d"
+      "bytes": 38517,
+      "sha256": "d557d94dd3678ac5d59971e07d4dacedb9943d5c9d6db1dd60942ad57f43e998"
     },
     {
       "path": "src/lgae_v3/hypergraph.py",
@@ -364,8 +369,8 @@
     },
     {
       "path": "src/lgae_v3/mutations.py",
-      "bytes": 19458,
-      "sha256": "74299b7fd6afa2485607c9abc10d72d89ed0a31eeb98b79d061359f95d35d117"
+      "bytes": 21389,
+      "sha256": "90131619595ef4a203aa124259f596ec4cdbf430b101b0e27b25da738903a825"
     },
     {
       "path": "src/lgae_v3/neighbor_index.py",
@@ -439,8 +444,8 @@
     },
     {
       "path": "src/lgae_v3/types.py",
-      "bytes": 16227,
-      "sha256": "b3204b245a8d1fd10583d7edd21979497bfa75fd5722d8c8b38c17fdc80b91bc"
+      "bytes": 16972,
+      "sha256": "bb2465ed0bd06f8ab87b97346ccc4cf7936fd0d464f115a7c53fefddda17221d"
     },
     {
       "path": "src/lgae_v3/uncertainty.py",
@@ -614,8 +619,8 @@
     },
     {
       "path": "tests/test_v531_research_improvements.py",
-      "bytes": 9804,
-      "sha256": "50858923513fe3109a41f47d09b888997fd772c37cfc5feed2641d53b5ad6bb9"
+      "bytes": 15493,
+      "sha256": "1c68bdc4645876601441457a981d7464cc8263461bb624ac11a0b0c3f492d333"
     }
   ]
 }

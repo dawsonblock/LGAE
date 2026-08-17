@@ -121,6 +121,7 @@
       "beta0_increase": 0,
       "persistent_homology_drift": null,
       "persistent_homology_bottleneck_drift": null,
+      "certification_level": "sampled_local",
       "slot": 11,
       "slot_generation": 1,
       "reweighted_existing": false,

@@ -48,6 +48,24 @@ class MutationDecision(str, Enum):
     REJECT = "reject"
 
 
+class CertificationLevel(str, Enum):
+    """v5.3.2: Distinguishes the coverage of a governor audit.
+
+    The audit found that the governor samples a subset of geometry but
+    collapses all successful diagnostics into one acceptance vocabulary.
+    This enum makes the coverage explicit:
+
+    - CERTIFIED_GLOBAL: All edges/nodes were audited (small graphs only).
+    - SAMPLED_LOCAL: A subset of edges/nodes were audited; the rest are
+      extrapolated.  "Audit pass" does not imply "global graph safe".
+    - HEURISTIC_PROXY: Only fast proxy diagnostics (AF3/WAF3) were used;
+      no exact curvature was computed.
+    """
+    CERTIFIED_GLOBAL = "certified_global"
+    SAMPLED_LOCAL = "sampled_local"
+    HEURISTIC_PROXY = "heuristic_proxy"
+
+
 @dataclass(slots=True)
 class GraphBuffers:
     """Fixed-capacity undirected graph buffers for compile-stable actuation topology.

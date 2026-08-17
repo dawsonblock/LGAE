@@ -1,5 +1,5 @@
 """LGAE-v3: geometry-governed self-evolving graph/latent controller."""
-from .config import LGAEConfig, load_config, config_structural_hash, config_governance_hash
+from .config import LGAEConfig, load_config, config_structural_hash, config_governance_hash, ProductionConfig, ResearchConfig
 from .evolution import LGAEEngine
 from .fibers import FixedWidthFiberLatent, FiberController, SOConnectionBank, project_to_so_d
 from .operators import DualOperatorState, SparseDualOperatorState
@@ -11,6 +11,7 @@ from .types import (
     round_edge_capacity,
     MutationDecision,
     MutationResult,
+    CertificationLevel,
 )
 from .training import (
     LGAETrainCore, train_step, padded_markov_edges, refresh_padded_markov_edges_,
@@ -21,6 +22,7 @@ from .mutations import (
     AddEdge, ReweightEdge, ReweightAffinity, ReweightLength, CoupledReweight,
     PruneEdge, RicciFlowReweight, MutationCooldownTracker,
     StructuralMutation, GraphMutation,
+    MutationAuthorityLevel, mutation_authority_level,
     mutation_to_spec, mutation_from_spec,
 )
 from .neighbor_index import (
@@ -78,12 +80,13 @@ from .hypergraph import (
 )
 
 __all__ = [
-    "LGAEConfig", "load_config", "config_structural_hash", "config_governance_hash",
+    "LGAEConfig", "load_config", "config_structural_hash", "config_governance_hash", "ProductionConfig", "ResearchConfig",
     "LGAEEngine", "FixedWidthFiberLatent", "FiberController", "SOConnectionBank", "project_to_so_d",
     "DualOperatorState", "SparseDualOperatorState", "EdgeRole", "GraphBuffers", "make_graph_buffers", "make_bucketed_graph_buffers", "round_edge_capacity",
-    "MutationDecision", "MutationResult",
+    "MutationDecision", "MutationResult", "CertificationLevel",
     "AddEdge", "ReweightEdge", "ReweightAffinity", "ReweightLength", "CoupledReweight",
     "PruneEdge", "RicciFlowReweight", "MutationCooldownTracker",
+    "MutationAuthorityLevel", "mutation_authority_level",
     "mutation_to_spec", "mutation_from_spec",
     "LGAETrainCore", "train_step", "padded_markov_edges", "refresh_padded_markov_edges_", "padded_markov_edges_with_slots", "refresh_padded_markov_edges_with_slots_",
     "gauge_orthogonality_penalty", "ANNNeighborIndex", "FAISSIndex", "RandomProjectionANN",
