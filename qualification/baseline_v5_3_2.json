@@ -1,0 +1,17 @@
+{
+  "archive_tag": "archive/v5.3.2-received",
+  "git_commit": "156cc968fc94753c551fd8d37cb70b91dcc9889e",
+  "source_tree_sha256": "f39f1579b3b8b6abe5bcaec3b5cf22a516cad94b589bf21adc6430d800cfdee5",
+  "python_version": "3.12.0",
+  "torch_version": "2.10.0",
+  "cuda_version": "none",
+  "platform": "macOS-26.2-arm64-arm-64bit",
+  "test_count": 652,
+  "qualification": {
+    "geometry": "PASS",
+    "production": "PASS",
+    "policy": "PASS (100% accuracy, 0.0 regret)"
+  },
+  "hash_seed_independence": "All 652 tests pass under PYTHONHASHSEED=0,1,2,42,123456",
+  "byte_for_byte_determinism": "All 3 qualification reports identical across repeated runs"
+}

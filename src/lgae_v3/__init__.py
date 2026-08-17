@@ -91,6 +91,10 @@ from .hypergraph import (
     Hyperedge, HypergraphBuffers, hypergraph_laplacian_diffusion,
     clique_expansion, star_expansion,
 )
+from .deterministic import (
+    DeterministicRNGContext, deterministic_mode, derive_seed,
+)
+from .reproducibility import ReproducibilityInfo, qualification_id
 
 __all__ = [
     "LGAEConfig", "load_config", "config_structural_hash", "config_governance_hash", "ProductionConfig", "ResearchConfig",

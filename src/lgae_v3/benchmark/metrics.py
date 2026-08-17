@@ -142,11 +142,16 @@ def run_benchmark(
     """
     tasks = ALL_TASKS if tasks is None else list(tasks)
     if proposals is None:
-        # Oracle baseline: always propose the correct action
+        # Oracle baseline: always propose the correct action.
+        # When multiple actions are correct, pick the one with highest ΔU
+        # (zero regret).  Using next(iter(correct)) is nondeterministic
+        # under PYTHONHASHSEED variation.
+        from .baselines import OracleController
+        oracle = OracleController()
         proposals = {}
         for task in tasks:
-            correct = task.correct_actions()
-            proposals[task.name] = next(iter(correct))  # Pick first correct
+            state = task.initial_state(seed=seed)
+            proposals[task.name] = oracle.propose(task, state)
 
     diagnosis_results: list[StructuralDiagnosisResult] = []
     regret_results: list[MutationRegretResult] = []

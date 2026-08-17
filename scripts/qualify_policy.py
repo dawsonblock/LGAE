@@ -11,13 +11,18 @@ if str(SRC) not in sys.path:
 
 from lgae_v3.benchmark.policy_qualification import qualify_structural_policy
 from lgae_v3.version import VERSION, QUALIFICATION_SCHEMA
+from lgae_v3.reproducibility import ReproducibilityInfo, qualification_id
 
 
 def main() -> int:
+    repro = ReproducibilityInfo.collect(seed=42, repo=ROOT)
+    qid = qualification_id(repro)
     _, result = qualify_structural_policy()
     payload = {
         "version": VERSION,
         "schema": QUALIFICATION_SCHEMA,
+        "qualification_id": qid,
+        "reproducibility": repro.to_dict(),
         "policy_qualification": result.to_dict(),
         "thresholds": {
             "diagnosis_accuracy_min": 0.80,

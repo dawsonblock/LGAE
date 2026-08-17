@@ -1,10 +1,10 @@
 {
-  "release": "LGAE v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control",
-  "version": "5.3.2",
-  "test_collection": 629,
+  "release": "LGAE v5.3.3 \u2014 Reproducibility repair: canonical action ordering, deterministic RNG, hash-seed independence",
+  "version": "5.3.3",
+  "test_collection": 652,
   "test_status": "PASS_SINGLE_INVOCATION",
-  "tests_passed": 629,
-  "test_note": "Full suite passes in a single pytest invocation (~20s) from the installed wheel (no PYTHONPATH override). +56 new tests for v5.3.2 research and safety improvements.",
+  "tests_passed": 652,
+  "test_note": "Full suite passes in a single pytest invocation from the installed wheel. +23 new tests for v5.3.3 reproducibility infrastructure. All 652 tests pass under PYTHONHASHSEED=0,1,2,42,123456.",
   "geometry_qualification": {
     "passed": true,
     "checks": 9,
@@ -28,18 +28,22 @@
   },
   "q_controller": {
     "script": "scripts/train_q_controller.py",
-    "approach": "Q(S,a) = E[ΔU(S,a)] trained on 14400 counterfactual outcomes across 8 topology families",
-    "held_out_families": ["wheel", "lollipop", "caveman"],
+    "approach": "Q(S,a) = E[\u0394U(S,a)] trained on 14400 counterfactual outcomes across 8 topology families",
+    "held_out_families": [
+      "wheel",
+      "lollipop",
+      "caveman"
+    ],
     "held_out_accuracy": 0.86,
     "in_distribution_accuracy": 0.43,
-    "note": "The Q-network does better on held-out families than in-distribution because some in-distribution families (star, cycle) have zero ΔU for all actions, making the correct action ambiguous. Wheel and caveman have clearer structural interventions."
+    "note": "The Q-network does better on held-out families than in-distribution because some in-distribution families (star, cycle) have zero \u0394U for all actions, making the correct action ambiguous. Wheel and caveman have clearer structural interventions."
   },
   "research_improvements": {
     "graph_feature_baseline": "Replaced GraphHashBaseline with GraphFeatureBaseline (online ridge regression on 16-dim structural features). Similar graph states now produce similar baseline predictions, reducing variance in advantage estimation.",
     "hierarchical_candidate_retrieval": "Replaced top-24 node candidate generation with top-64 + latent-distance KNN retrieval (4 neighbors per node, 512 max pairs). Correct endpoints outside the top-64 are now reachable via KNN.",
     "dynamic_gauge_norm_clamping": "Added generator Frobenius norm clamping (default max=1.0) after antisymmetrization. Prevents Cayley conditioning problems and bounds the Jacobian of the state-dependent gauge map. Spectral norm available as opt-in.",
     "equilibrium_barrier_upgrade": "Upgraded from pure state-delta to combined state-delta + dynamics residual. Now checks ||F(z_t) - z_t|| / ||z_t|| in addition to ||z_t - z_{t-1}|| / ||z_{t-1}||, catching periodic orbits and metastable plateaus that the old check missed.",
-    "counterfactual_dataset": "New module generates (state, action, ΔU) triples across 8 topology families (path, cycle, grid, star, BA, WS, random, bipartite) with 3 held-out families (wheel, lollipop, caveman).",
+    "counterfactual_dataset": "New module generates (state, action, \u0394U) triples across 8 topology families (path, cycle, grid, star, BA, WS, random, bipartite) with 3 held-out families (wheel, lollipop, caveman).",
     "q_learning": "Q(S,a) trained via MSE regression on counterfactual outcomes. Policy derived as argmax_a Q(S,a) instead of supervised action classification.",
     "production_config": "ProductionConfig() factory enables all hardening features (curvature_ema, equilibrium_barrier) and sets bounded safety thresholds. ResearchConfig() is the permissive default.",
     "certification_levels": "Governor now reports CERTIFIED_GLOBAL, SAMPLED_LOCAL, or HEURISTIC_PROXY in mutation result metadata, distinguishing full audits from sampled checks.",
@@ -55,10 +59,10 @@
     "permutation_equivariant_executive": "New EquivariantExecutiveNetwork uses message-passing GNN with mean pooling. Graph-level output is exactly permutation-invariant (verified to 1e-4)."
   },
   "wheel": {
-    "path": "dist/lgae_v3-5.3.2-py3-none-any.whl",
-    "sha256": "a9e09f3441b7f2dc8f37cdc09566724f90dfd25524bfc6a10c502d85f687870a",
-    "installed_version": "5.3.2",
-    "cli_version": "5.3.2"
+    "path": "dist/lgae_v3-5.3.3-py3-none-any.whl",
+    "sha256": "73aed41bc94ca0c3e5c5a77c2afc2e0f165334c46cbc914687d2bbcd78cbae58",
+    "installed_version": "5.3.3",
+    "cli_version": "5.3.3"
   },
   "torch_compile": {
     "architecture": "fixed-shape sparse numerical kernels; eager discrete evolution",
@@ -74,5 +78,5 @@
     "manifest": "PASS",
     "manifest_note": "MANIFEST.sha256.json regenerated as the final step after all other artifacts were immutable."
   },
-  "release_boundary_note": "All qualification artifacts regenerated from installed 5.3.2 wheel. Version constant, pyproject.toml, schema constants, README, CHANGELOG, and BUILD_REPORT all agree on 5.3.2."
+  "release_boundary_note": "All qualification artifacts regenerated from installed 5.3.3 wheel. Version constant, pyproject.toml, schema constants all agree on 5.3.3. Qualification reports include reproducibility metadata (seed, PYTHONHASHSEED, source commit, source tree hash, config hash). All 3 qualification reports are byte-for-byte identical across repeated runs."
 }

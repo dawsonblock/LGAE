@@ -14,7 +14,7 @@ import random
 
 import torch
 
-from .tasks import BenchmarkTask, StructuralAction, ALL_TASKS
+from .tasks import BenchmarkTask, StructuralAction, ALL_TASKS, canonical_action, ACTION_TO_INDEX
 from .metrics import BenchmarkResult, run_benchmark
 from ..executive import StructuralExecutive, ACTION_LIST
 
@@ -66,8 +66,24 @@ def add_oracle_experience(
     best = float(best_outcome.delta_utility)
     # The benchmark defines semantically correct actions. Prefer that label when
     # available so near-tied utility alternatives do not erase diagnosis intent.
-    correct = list(task.correct_actions())
-    policy_target = correct[0] if correct else best_outcome.action
+    # When multiple actions are correct, pick the one with highest ΔU (same
+    # logic as OracleController).  Using list(set)[0] is nondeterministic under
+    # PYTHONHASHSEED variation.
+    correct = task.correct_actions()
+    if correct:
+        if len(correct) == 1:
+            policy_target = canonical_action(correct)
+        else:
+            # Pick highest-ΔU among correct actions, ties broken canonically
+            best_correct_delta = float("-inf")
+            policy_target = canonical_action(correct)
+            for action in sorted(correct, key=lambda a: ACTION_TO_INDEX[a]):
+                outcome = task.evaluate(state, action)
+                if outcome.delta_utility > best_correct_delta:
+                    best_correct_delta = outcome.delta_utility
+                    policy_target = action
+    else:
+        policy_target = best_outcome.action
     executive.record_policy_label(obs, policy_target)
     for outcome in outcomes:
         executive.record_outcome(

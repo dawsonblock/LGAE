@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from typing import Any
 import random
 import math
+import hashlib
 
 import torch
 from torch import Tensor
@@ -31,6 +32,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import networkx as nx
+
+
+def _stable_hash_u64(value: str | float) -> int:
+    """Deterministic 64-bit hash.  Not dependent on PYTHONHASHSEED."""
+    digest = hashlib.sha256(str(value).encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big")
 
 from ..types import GraphBuffers, make_graph_buffers
 from ..config import LGAEConfig
@@ -254,7 +261,7 @@ def generate_counterfactual_dataset(
     samples_per_family = num_samples // len(families)
     for family in families:
         for i in range(samples_per_family):
-            s = seed + i * 1000 + hash(family) % 1000
+            s = seed + i * 1000 + (_stable_hash_u64(family) % 1000)
             n = rng.randint(min_size, max_size)
             G = generate_graph(family, n, s)
 
@@ -393,10 +400,10 @@ def train_q_network(
         total = 0
         seen_states: dict[int, int] = {}  # hash of obs → best action idx
         for i, s in enumerate(dataset):
-            h = hash(s.observation.sum().item())
+            h = _stable_hash_u64(s.observation.sum().item())
             if h not in seen_states:
                 # Find best action for this state
-                state_samples = [j for j, s2 in enumerate(dataset) if hash(s2.observation.sum().item()) == h]
+                state_samples = [j for j, s2 in enumerate(dataset) if _stable_hash_u64(s2.observation.sum().item()) == h]
                 best_j = max(state_samples, key=lambda j: dataset[j].delta_utility)
                 seen_states[h] = dataset[best_j].action_idx
             if predicted_actions[i].item() == seen_states[h]:
@@ -454,7 +461,7 @@ def evaluate_q_network(
         # Group by state and compute accuracy
         seen_states: dict[int, list[int]] = {}  # obs hash → sample indices
         for i, s in enumerate(dataset):
-            h = hash(s.observation.sum().item())
+            h = _stable_hash_u64(s.observation.sum().item())
             if h not in seen_states:
                 seen_states[h] = []
             seen_states[h].append(i)

@@ -25,6 +25,9 @@ from .tasks import (
     HeldOutBottleneck,
     HeldOutSpuriousEdge,
     heldout_tasks,
+    ACTION_ORDER,
+    ACTION_TO_INDEX,
+    canonical_action,
 )
 from .metrics import (
     StructuralDiagnosisResult,
@@ -64,6 +67,7 @@ __all__ = [
     "RandomActionController", "SpectralHeuristicController", "OracleController",
     "ALL_BASELINES",
     "BenchmarkHarness",
+    "ACTION_ORDER", "ACTION_TO_INDEX", "canonical_action",
     "CounterfactualSample", "QNetwork", "QTrainingResult", "EvaluationResult",
     "TOPOLOGY_FAMILIES", "HELD_OUT_FAMILIES",
     "generate_counterfactual_dataset", "train_q_network", "evaluate_q_network",

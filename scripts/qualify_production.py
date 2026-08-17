@@ -23,6 +23,7 @@ from lgae_v3.sheaf_diffusion import gauge_orthogonality_penalty, sheaf_laplacian
 from lgae_v3.transactions import graph_transaction
 from lgae_v3.types import GraphBuffers
 from lgae_v3.version import VERSION, QUALIFICATION_SCHEMA
+from lgae_v3.reproducibility import ReproducibilityInfo, qualification_id
 
 
 def graph() -> GraphBuffers:
@@ -34,6 +35,8 @@ def graph() -> GraphBuffers:
 
 
 def main() -> int:
+    repro = ReproducibilityInfo.collect(seed=42, repo=ROOT)
+    qid = qualification_id(repro)
     checks: dict[str, bool] = {}
     details: dict[str, object] = {}
 
@@ -107,6 +110,8 @@ def main() -> int:
     payload = {
         'version': VERSION,
         'schema': QUALIFICATION_SCHEMA,
+        'qualification_id': qid,
+        'reproducibility': repro.to_dict(),
         'suite': 'production_dynamics',
         'checks': checks,
         'details': details,

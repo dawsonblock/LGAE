@@ -40,6 +40,32 @@ class StructuralAction(Enum):
     COUPLED_REWEIGHT = "coupled_reweight"
 
 
+# ---------------------------------------------------------------------------
+# Canonical action ordering (v5.3.3)
+#
+# Never derive semantic order from sets, dicts (unless ordered), filesystem
+# traversal, or Python hash order.  Use ACTION_TO_INDEX for deterministic
+# ordering when selecting from a set of correct actions.
+# ---------------------------------------------------------------------------
+
+ACTION_ORDER: tuple[StructuralAction, ...] = tuple(StructuralAction)
+
+ACTION_TO_INDEX: dict[StructuralAction, int] = {
+    action: idx for idx, action in enumerate(ACTION_ORDER)
+}
+
+
+def canonical_action(actions: set[StructuralAction]) -> StructuralAction:
+    """Pick the canonical (lowest-index) action from a set.
+
+    This replaces ``next(iter(actions))`` which is nondeterministic under
+    PYTHONHASHSEED variation.
+    """
+    if not actions:
+        return StructuralAction.NO_OP
+    return min(actions, key=lambda a: ACTION_TO_INDEX[a])
+
+
 @dataclass
 class TaskState:
     """Initial state for a benchmark task."""

@@ -1,11 +1,11 @@
 {
-  "schema": "LGAE_MANIFEST_V5_3_2",
-  "version": "5.3.2",
+  "schema": "LGAE_MANIFEST_V5_3_3",
+  "version": "5.3.3",
   "manifest_excludes": [
     ".gitignore",
     "MANIFEST.sha256.json"
   ],
-  "file_count": 126,
+  "file_count": 132,
   "files": [
     {
       "path": ".github/workflows/ci.yml",
@@ -53,6 +53,11 @@
       "sha256": "ca87673bb0ed620eb853afdfe82b5bbf6b6b9e20b72d4ab8fb481ee5aefc8571"
     },
     {
+      "path": "docs/COMPLETE_GUIDE.md",
+      "bytes": 29618,
+      "sha256": "9246555c228289a1cfaf4d6d9e4d1d5d73f4458abeb67044a39d41356b53b4c0"
+    },
+    {
       "path": "docs/MATHEMATICS.md",
       "bytes": 4322,
       "sha256": "1f2c4f7062c97d6e2e55542dbb5687d0cd2423e251ace611d53476cdf635a210"
@@ -66,6 +71,11 @@
       "path": "docs/READING_LIST.md",
       "bytes": 8168,
       "sha256": "9d81f65b59404b206c302aa9a277a5f9f648a0be0ad707a45ea78901ac969522"
+    },
+    {
+      "path": "docs/ROADMAP_V5_4.md",
+      "bytes": 33116,
+      "sha256": "273873e7872b2baf1ac51a7d2e686d1fe925dd205943427b44c1c54cb0da8d2f"
     },
     {
       "path": "docs/V32_HARDENING.md",
@@ -90,7 +100,7 @@
     {
       "path": "example_output.txt",
       "bytes": 3955,
-      "sha256": "7bcbb399f84797ee763243a5158fd16a0b5605679b286f1339cf8e928b9a348c"
+      "sha256": "2493de172999977d1692d3321dbacdbc6c9da70b733a761070f1dc0ae70874d5"
     },
     {
       "path": "examples/run_lgae_v3.py",
@@ -99,28 +109,33 @@
     },
     {
       "path": "policy_qualification_report.json",
-      "bytes": 612,
-      "sha256": "c7fb1b1b7daacca569234fb2a5f61db45ac9f5b25b2d539964fb79edfafedeef"
+      "bytes": 1112,
+      "sha256": "830846a9d264dbf03d4916dc488c8b2d1de80ddbbd6a6f53464d39e00f04e931"
     },
     {
       "path": "production_qualification_report.json",
-      "bytes": 1508,
-      "sha256": "7d12e482d9f9ddd7731c524ab3c22861b8628c3817773bc9323aab1e1ec973f7"
+      "bytes": 2008,
+      "sha256": "52a0be12bb14af0adf4357a5585c70f5e7e5ed0f71c223a7e0e3d55cc55fdaaf"
     },
     {
       "path": "pyproject.toml",
       "bytes": 883,
-      "sha256": "f1647830cb7f97e57f62b561faa5537191bf8ca3a840b163fe89d62fee6f9160"
+      "sha256": "87c35ac43a746dd7d744e0a94437de114c29f382f0fa9dd8a19f896ba8a1f9e4"
+    },
+    {
+      "path": "qualification/baseline_v5_3_2.json",
+      "bytes": 653,
+      "sha256": "6d7189fd1f23e5dfc16ae54e2616fca699c0f4311f6a7c4e36cb44adeed00bbf"
     },
     {
       "path": "qualification_report.json",
-      "bytes": 4405,
-      "sha256": "71fe7673082adbff2db37e51acbac9b6553a6607e2dcf43afdc3ce48a1232843"
+      "bytes": 4905,
+      "sha256": "191b9b50fdc9b87576ea6a776d5435efe73c3d9ffbe2e69d7c8f9cc42c8e01a6"
     },
     {
       "path": "release_verification.json",
-      "bytes": 6519,
-      "sha256": "3ad954d1bcdb089f052a50a55571aad74a18629bb693142a71e8f6c36ea97758"
+      "bytes": 6761,
+      "sha256": "a57b83c18a2e70b8622e9e585b643c28585f190e14c6cb416a2669feaa67c39f"
     },
     {
       "path": "requirements-verified.txt",
@@ -154,18 +169,18 @@
     },
     {
       "path": "scripts/qualify.py",
-      "bytes": 5417,
-      "sha256": "3f8ad1045ae4d0566d4557d7e601f2647197fb5a193df4e4d5fe9af4dadc2530"
+      "bytes": 5646,
+      "sha256": "2d291f0a7204128e7e7444561930b2010ef5da5d064c9b67073aafcc287d58ae"
     },
     {
       "path": "scripts/qualify_policy.py",
-      "bytes": 1035,
-      "sha256": "82d9bef1bd77f7c3c2626aeb33ef2142a120e30d7743856a900c67523d048a78"
+      "bytes": 1280,
+      "sha256": "6c6a33a150a69229603797a1bf766ed3f3c9bd275b04be809488ceb19a2b5f5a"
     },
     {
       "path": "scripts/qualify_production.py",
-      "bytes": 4617,
-      "sha256": "9a34603cea0942c85c8cfc5aa904d9c69e936cc10b2ba48a62654a4190cdf0c6"
+      "bytes": 4862,
+      "sha256": "cc08e9a0361e2401e4b5ab0ff7189b9892728baaeaeff3384ee17862f463c8ad"
     },
     {
       "path": "scripts/run_real_experiment.py",
@@ -189,8 +204,8 @@
     },
     {
       "path": "src/lgae_v3/__init__.py",
-      "bytes": 4673,
-      "sha256": "a11484e6ec9dd03ed989955e486262611bef8466f9238f244b98d5d21558e439"
+      "bytes": 4833,
+      "sha256": "62edc0d45f06409501ff486241872f32e1da9c07d55c400326d74c78d1f6e99e"
     },
     {
       "path": "src/lgae_v3/action_bridge.py",
@@ -204,18 +219,18 @@
     },
     {
       "path": "src/lgae_v3/benchmark/__init__.py",
-      "bytes": 2096,
-      "sha256": "9783b7f86989b5ec3e03b847d08fb54245af7d0c229e430168f209dd0c12d74f"
+      "bytes": 2216,
+      "sha256": "54f936e363e53f55601e33a32eb98238c39c76f150720114142d3314a61fb913"
     },
     {
       "path": "src/lgae_v3/benchmark/baselines.py",
-      "bytes": 5631,
-      "sha256": "409d9aeb5bdd651e476f95a85ddb10561c6f09dd94c12a4f817db8eea5639f14"
+      "bytes": 5789,
+      "sha256": "b85480c277b81d6e3f2562363a46bcd879c466a6b4cffdcc2663f9499b59bbd4"
     },
     {
       "path": "src/lgae_v3/benchmark/counterfactual.py",
-      "bytes": 16742,
-      "sha256": "c97f8344ec8fc21f9e6dc24b1c32fd7839321caa2dc02d218cf2a5565e669566"
+      "bytes": 17039,
+      "sha256": "53b270c1506db17d2c00212c75852bacb7d3430ba463eb02bfe312efd3918e04"
     },
     {
       "path": "src/lgae_v3/benchmark/harness.py",
@@ -224,18 +239,18 @@
     },
     {
       "path": "src/lgae_v3/benchmark/metrics.py",
-      "bytes": 5601,
-      "sha256": "9b1fe27d4295cfdafaea3cea6a47433755e446ec334cdb158c942fb8e9c7cdbb"
+      "bytes": 5866,
+      "sha256": "523aebc7ba68d5636d9b8a72ba55fdd0868220bb207fa78ce65edc57d19fc422"
     },
     {
       "path": "src/lgae_v3/benchmark/policy_qualification.py",
-      "bytes": 6108,
-      "sha256": "51f8ec071145336bd1beb3fa7b5346f3d2f16c9749d18b1ea8b5eda9427aff60"
+      "bytes": 6907,
+      "sha256": "b1d56a2e61f7d1dffbc64bbea3d8c3ac2d92ee0448350e905027ce6bb2da4d94"
     },
     {
       "path": "src/lgae_v3/benchmark/tasks.py",
-      "bytes": 33896,
-      "sha256": "e94b45faa0fe5a93c930687709185775245114addbd21b7991d6d5b2894b5e8d"
+      "bytes": 34846,
+      "sha256": "ee6ad7fdf71745bdc85ea9beb65663bda5dab037da4ad4e7d66352d961cf6158"
     },
     {
       "path": "src/lgae_v3/causal_edges.py",
@@ -333,6 +348,11 @@
       "sha256": "765ddd52eaa9d8136bb6b4d2aef0a414cf7574bb78c5af6374d4f52e5671f5c6"
     },
     {
+      "path": "src/lgae_v3/deterministic.py",
+      "bytes": 5785,
+      "sha256": "7fe970aebc4a5759cfe3cb9e91f38874769abb14f795911dda6124c647085a59"
+    },
+    {
       "path": "src/lgae_v3/dynamic_gauge.py",
       "bytes": 14645,
       "sha256": "559545388dc278c05244155a8293e15ff321d6b8bd4a6f4c42e8c3107f1dcd0a"
@@ -408,6 +428,11 @@
       "sha256": "8b93cf3d65addca34b8eb44fb7b395190d2f15253b7661eb50fe239d0ff02c02"
     },
     {
+      "path": "src/lgae_v3/reproducibility.py",
+      "bytes": 3778,
+      "sha256": "d1e01c78ef22e44769a61844c0f005e5fff3c5a50887aa9869a7abc8c9c7ef09"
+    },
+    {
       "path": "src/lgae_v3/sheaf_diffusion.py",
       "bytes": 9561,
       "sha256": "7b6700713698a31882e0a742fcac38da9018e68e92a322e33e9a8eed813f0019"
@@ -470,7 +495,7 @@
     {
       "path": "src/lgae_v3/version.py",
       "bytes": 392,
-      "sha256": "6b618ab17581f4de81526906fca6def8f221b773e9edb151e1c8640ffe59ac4b"
+      "sha256": "10047666783e3b09a469012b4c959023efd15e4068afe5fe001966717a27ebeb"
     },
     {
       "path": "tests/test_authority_persistence.py",
@@ -570,7 +595,7 @@
     {
       "path": "tests/test_v411_integrity.py",
       "bytes": 17691,
-      "sha256": "82e5d80aafbf8c9155021bd65db18446fd612825f89d002edfb90bd552c09385"
+      "sha256": "ea332ee56340f41e67e761b56d3f5eda659fbd6a3565661ed0382207a511119c"
     },
     {
       "path": "tests/test_v412_adversarial.py",
@@ -636,6 +661,11 @@
       "path": "tests/test_v531_research_improvements.py",
       "bytes": 25823,
       "sha256": "decbccddb5c75876e860901652fb385c1d950abe6faf54b409da07c1642e89eb"
+    },
+    {
+      "path": "tests/test_v533_reproducibility.py",
+      "bytes": 6722,
+      "sha256": "836c41432069e07d5972aba587194fa076c377adf810c45a60af90bfe367e744"
     }
   ]
 }

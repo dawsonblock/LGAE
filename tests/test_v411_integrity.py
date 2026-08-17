@@ -400,7 +400,7 @@ def test_weighted_forman_uniform_reduction():
 
 def test_version_constant_exists():
     """version.py should export a VERSION constant."""
-    assert VERSION == "5.3.2"
+    assert VERSION == "5.3.3"
 
 
 def test_cli_version_matches_package():

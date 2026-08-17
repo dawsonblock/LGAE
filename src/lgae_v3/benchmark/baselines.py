@@ -31,7 +31,7 @@ from typing import Callable
 
 import torch
 
-from .tasks import BenchmarkTask, StructuralAction, TaskState
+from .tasks import BenchmarkTask, StructuralAction, TaskState, canonical_action, ACTION_TO_INDEX
 from ..operators import spectral_gap_graphbuffers
 
 
@@ -65,16 +65,17 @@ class OracleController:
         if not correct:
             return StructuralAction.NO_OP
         if len(correct) == 1:
-            return next(iter(correct))
-        # Multiple correct actions: pick the one with highest ΔU
+            return canonical_action(correct)
+        # Multiple correct actions: pick the one with highest ΔU.
+        # Ties broken by canonical action ordering (deterministic).
         best_action = None
         best_delta = float("-inf")
-        for action in correct:
+        for action in sorted(correct, key=lambda a: ACTION_TO_INDEX[a]):
             outcome = task.evaluate(state, action)
             if outcome.delta_utility > best_delta:
                 best_delta = outcome.delta_utility
                 best_action = action
-        return best_action or next(iter(correct))
+        return best_action or canonical_action(correct)
 
 
 class SpectralHeuristicController:

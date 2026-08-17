@@ -26,10 +26,24 @@
     },
     "train_samples": 1008
   },
-  "schema": "LGAE_QUALIFICATION_V5_3_2",
+  "qualification_id": "lgae-q-05c6c5e545c5",
+  "reproducibility": {
+    "config_hash": "none",
+    "cuda_version": "none",
+    "device": "cpu",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "python_hash_seed": "random",
+    "python_version": "3.12.0",
+    "seed": 42,
+    "source_commit": "156cc968fc94753c551fd8d37cb70b91dcc9889e",
+    "source_tree_sha256": "b7fd6a3ece900236c6e4459e14c569feafccb0ff9a60464d6df6c369293e0b82",
+    "torch_deterministic": false,
+    "torch_version": "2.10.0"
+  },
+  "schema": "LGAE_QUALIFICATION_V5_3_3",
   "thresholds": {
     "diagnosis_accuracy_min": 0.8,
     "mean_regret_max": 0.35
   },
-  "version": "5.3.2"
+  "version": "5.3.3"
 }
