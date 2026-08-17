@@ -1,10 +1,10 @@
 {
   "release": "LGAE v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control",
   "version": "5.3.2",
-  "test_collection": 607,
+  "test_collection": 629,
   "test_status": "PASS_SINGLE_INVOCATION",
-  "tests_passed": 607,
-  "test_note": "Full suite passes in a single pytest invocation (~20s) from the installed wheel (no PYTHONPATH override). +34 new tests for v5.3.2 research and safety improvements.",
+  "tests_passed": 629,
+  "test_note": "Full suite passes in a single pytest invocation (~20s) from the installed wheel (no PYTHONPATH override). +56 new tests for v5.3.2 research and safety improvements.",
   "geometry_qualification": {
     "passed": true,
     "checks": 9,
@@ -45,11 +45,18 @@
     "certification_levels": "Governor now reports CERTIFIED_GLOBAL, SAMPLED_LOCAL, or HEURISTIC_PROXY in mutation result metadata, distinguishing full audits from sampled checks.",
     "mutation_authority_levels": "Mutations classified as REVERSIBLE (reweighting), STRUCTURAL (add/prune edges), or IRREVERSIBLE (fiber spawn/prune, gauge changes), enabling tiered evidence requirements.",
     "scale_qualification": "New script (scripts/scale_qualification.py) measures empirical complexity curves for diffusion, audit, mutation, and checkpoint operations across N=100 to N=3000.",
-    "checkpoint_merkle_root": "Safe checkpoint format now includes a Merkle root over all checkpoint files, providing cryptographic provenance without requiring a trusted signature."
+    "checkpoint_merkle_root": "Safe checkpoint format now includes a Merkle root over all checkpoint files, providing cryptographic provenance without requiring a trusted signature.",
+    "ed25519_receipt_signing": "Receipt chain now supports optional Ed25519 signing (requires cryptography or PyNaCl). Signed receipts provide identity authentication in addition to tamper evidence.",
+    "bayesian_curvature_hysteresis": "Curvature EMA upgraded from crude EWMA variance to Normal-Inverse-Gamma conjugate posterior with calibrated credible intervals and effective sample size.",
+    "information_gain_task": "New Task G tests whether the executive's IG predictions correlate with actual information gain from exploratory mutations on hidden structural uncertainty.",
+    "tensor_native_topology": "Added topology_signature_buffers() and find_bridges_buffers() that operate directly on GraphBuffers without NetworkX conversion. Governor bridge detection now uses tensor-native path.",
+    "torch_compile_qualification": "New script measures eager vs compiled diffusion. Result: compiled is 0.05x speedup (slower) due to graph breaks from .item() calls and recompilation from step_index changes. Honest negative result.",
+    "model_predictive_control": "New StructuralMPC class plans multi-step mutation sequences using shadow evaluation with receding horizon control. Bounded branching factor and sequence cap.",
+    "permutation_equivariant_executive": "New EquivariantExecutiveNetwork uses message-passing GNN with mean pooling. Graph-level output is exactly permutation-invariant (verified to 1e-4)."
   },
   "wheel": {
     "path": "dist/lgae_v3-5.3.2-py3-none-any.whl",
-    "sha256": "473fcf532aeb7676866c52ecd2e711c7e6f719f5847cac608557f210979ed5cd",
+    "sha256": "a9e09f3441b7f2dc8f37cdc09566724f90dfd25524bfc6a10c502d85f687870a",
     "installed_version": "5.3.2",
     "cli_version": "5.3.2"
   },

@@ -53,11 +53,28 @@ class OracleController:
 
     Also a consistency check: if the oracle does not score 100% diagnosis
     accuracy, the benchmark's own regret computation is inconsistent.
+
+    v5.3.2: When multiple actions are correct, picks the one with the
+    highest ΔU (zero regret).  Previously picked an arbitrary element
+    from the set, which could have nonzero regret if the set contained
+    both high- and low-ΔU actions.
     """
 
     def propose(self, task: BenchmarkTask, state: TaskState) -> StructuralAction:
         correct = task.correct_actions()
-        return next(iter(correct)) if correct else StructuralAction.NO_OP
+        if not correct:
+            return StructuralAction.NO_OP
+        if len(correct) == 1:
+            return next(iter(correct))
+        # Multiple correct actions: pick the one with highest ΔU
+        best_action = None
+        best_delta = float("-inf")
+        for action in correct:
+            outcome = task.evaluate(state, action)
+            if outcome.delta_utility > best_delta:
+                best_delta = outcome.delta_utility
+                best_action = action
+        return best_action or next(iter(correct))
 
 
 class SpectralHeuristicController:

@@ -32,7 +32,7 @@
       "prune_threshold": 0.2,
       "reason": "below_add_threshold",
       "samples": 3,
-      "sigma_curvature": 0.0
+      "sigma_curvature": 0.044721359549995794
     },
     "equilibrium": {
       "consecutive": 2,
