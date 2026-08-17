@@ -1,8 +1,8 @@
-# LGAE v5.3.2 — Integrity & Baseline-Comparison Build Report
+# LGAE v5.3.3 — Reproducibility Repair Build Report
 
-Build: `5.3.2`
+Build: `5.3.3`
 
-> **Release boundary.** This build report covers the v5.3.2 release, which is a correctness/integrity patch on v5.3.0. All qualification artifacts below were regenerated from the installed 5.3.2 wheel. The version constant, pyproject.toml, schema constants, README, CHANGELOG, and all reports agree on 5.3.2. The manifest was regenerated as the final step after all other artifacts were immutable.
+> **Release boundary.** This build report covers the v5.3.3 release, which is a reproducibility hotfix on v5.3.2. All qualification artifacts below were regenerated from the installed 5.3.3 wheel. The version constant, pyproject.toml, schema constants, README, and all reports agree on 5.3.3. The manifest was regenerated as the final step after all other artifacts were immutable. All qualification reports include reproducibility metadata and are byte-for-byte identical across repeated runs.
 
 ## Release objective
 
@@ -55,16 +55,18 @@ v5.3.0 hardens the dynamics around the v5.2 structural-policy layer without weak
 `scripts/qualify_policy.py`: **PASS**
 
 - training structural outcomes: **864**
-- held-out diagnosis accuracy: **83.3333%** (deterministic after the v5.3.2 seed-before-init fix; the v5.3.0 report's 86.7% was one nondeterministic draw)
-- mean mutation regret: **0.0176059**
+- held-out diagnosis accuracy: **100%** (deterministic after v5.3.3 canonical action ordering fix; previously varied 86.7%–100% under PYTHONHASHSEED)
+- mean mutation regret: **0.0**
 - release thresholds: accuracy >= 80%, regret <= 0.35
 
 This remains a controlled synthetic proposal-policy qualification, not a deployment-safety or real-world generalization claim. See `scripts/compare_baselines.py` for a baseline comparison (random / spectral-heuristic / learned / oracle) on both in-distribution and structurally held-out tasks.
 
 ## Tests
 
-- pytest collection: **559 tests**
-- all **559/559 passed** in a single `pytest` invocation (~15s on a modern laptop)
+- pytest collection: **652 tests**
+- all **652/652 passed** in a single `pytest` invocation from the installed wheel
+- all **652/652 passed** under PYTHONHASHSEED=0,1,2,42,123456
+- v5.3.3 reproducibility tests: **23/23 passed**
 - v5.3 production-dynamics tests: **12/12 passed**
 
 The v5.3.0 BUILD_REPORT claimed "a single monolithic pytest invocation exceeds the execution window of the packaging environment" and that the suite only passed "in bounded batches". This was not reproducible: on a standard development machine the full suite completes in ~15 seconds in one invocation. The "bounded batches" note may have reflected a specific constrained packaging container, but it is not a general property of the suite and has been removed as a release claim.

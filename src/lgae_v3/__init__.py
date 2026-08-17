@@ -95,6 +95,7 @@ from .deterministic import (
     DeterministicRNGContext, deterministic_mode, derive_seed,
 )
 from .reproducibility import ReproducibilityInfo, qualification_id
+from .benchmark import ACTION_ORDER, ACTION_TO_INDEX, canonical_action
 
 __all__ = [
     "LGAEConfig", "load_config", "config_structural_hash", "config_governance_hash", "ProductionConfig", "ResearchConfig",
@@ -109,5 +110,8 @@ __all__ = [
     "gauge_orthogonality_penalty", "ANNNeighborIndex", "FAISSIndex", "RandomProjectionANN",
     "CurvatureHysteresisController", "LatentEquilibriumBarrier", "GraphHashBaseline", "GraphFeatureBaseline",
     "GraphTransaction", "graph_transaction",
+    "DeterministicRNGContext", "deterministic_mode", "derive_seed",
+    "ReproducibilityInfo", "qualification_id",
+    "ACTION_ORDER", "ACTION_TO_INDEX", "canonical_action",
 ]
 from .version import VERSION as __version__

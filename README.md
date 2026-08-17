@@ -1,6 +1,6 @@
 <div align="center">
 
-# LGAE v5.3.2
+# LGAE v5.3.3
 
 ### Governed Adaptive Geometry Engine
 
@@ -50,7 +50,7 @@ LGAE is a research-grade governed geometric learning engine and structural contr
 
 The core principle: **field dynamics are sparse and compiled; discrete evolution is transactional and eager; curvature diagnoses rather than directly dictates topology.**
 
-> **Naming.** The release is **LGAE v5.3.2**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.2`. The CLI is `lgae-v3`.
+> **Naming.** The release is **LGAE v5.3.3**, the repo is [`dawsonblock/LGAE`](https://github.com/dawsonblock/LGAE). The Python distribution/module is `lgae-v3` / `lgae_v3` — a historical name kept for import stability (renaming would touch every import in 53 source + 32 test files for no functional gain). `pip install lgae-v3` gives you `import lgae_v3` at version `5.3.3`. The CLI is `lgae-v3`.
 
 ---
 
@@ -402,7 +402,19 @@ pip install 'lgae-v3[ph]'    # installs ripser
 
 ## Release history
 
-### v5.3.2 — Integrity & baseline-comparison fixes (current)
+### v5.3.3 — Reproducibility repair (current)
+
+- **Fixed PYTHONHASHSEED-dependent nondeterminism**: `next(iter(set))` and `list(set)[0]` in oracle and policy training produced different results under different hash seeds. Replaced with canonical action ordering.
+- **Added canonical action ordering** (`ACTION_ORDER`, `ACTION_TO_INDEX`, `canonical_action()`): deterministic selection from action sets.
+- **Removed all Python `hash()` from deterministic logic**: replaced with SHA-256-based stable hashing in counterfactual module.
+- **Added `DeterministicRNGContext`**: domain-separated substreams (graph_generation, model_initialization, counterfactuals, qualification) via SHA-256 seed derivation.
+- **Added reproducibility metadata** to all qualification reports: seed, PYTHONHASHSEED, source commit, source tree hash, config hash, qualification ID.
+- **All 652 tests pass under PYTHONHASHSEED=0,1,2,42,123456**.
+- **All qualification reports are byte-for-byte identical across repeated runs**.
+- Policy qualification now deterministic at 100% accuracy, 0.0 regret.
+- See `docs/ROADMAP_V5_4.md` for the full v5.4.0 roadmap.
+
+### v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control
 
 - **Fixed nondeterministic policy qualification** (release-gate bug): seed was set after network init, making accuracy a random draw (86.7%–100% on identical runs). Now deterministic at 83.3%.
 - **Removed circular benchmark utility** in Task A (rewarded the correct action's signature directly); replaced with pure spectral gap.

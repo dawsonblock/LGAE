@@ -1,9 +1,9 @@
 # LGAE — Complete Guide
 
-**Version:** 5.3.2
+**Version:** 5.3.3
 **Repository:** [dawsonblock/LGAE](https://github.com/dawsonblock/LGAE)
 **Package:** `lgae-v3` (pip) / `lgae_v3` (import)
-**Tests:** 629 passing
+**Tests:** 652 passing
 **Source files:** 57
 **Test files:** 33
 **License:** MIT
@@ -51,9 +51,9 @@ honest benchmarking, and clearly documented limitations.
 
 ### Package identity
 
-The release is **LGAE v5.3.2**. The Python distribution/module is
+The release is **LGAE v5.3.3**. The Python distribution/module is
 `lgae-v3` / `lgae_v3` — a historical name kept for import stability.
-`pip install lgae-v3` gives you `import lgae_v3` at version `5.3.2`.
+`pip install lgae-v3` gives you `import lgae_v3` at version `5.3.3`.
 The CLI is `lgae-v3`.
 
 ---
@@ -549,7 +549,7 @@ are now addressed.
 
 - ✅ Manifest hash mismatch — regenerated as final step
 - ✅ Version identity mixing — all agree on 5.3.2
-- ✅ Stale test count — reports 629
+- ✅ Stale test count — reports 652
 - ✅ Qualification from installed wheel — not PYTHONPATH
 - ✅ Wheel rebuilt with recorded SHA-256
 
@@ -717,22 +717,22 @@ These limitations are documented, not hidden:
 
 ## 15. Verification and Release
 
-### Current release: v5.3.2
+### Current release: v5.3.3
 
 | Check | Result |
 |-------|--------|
-| Version constant | 5.3.2 |
-| pyproject.toml | 5.3.2 |
-| Schema constants | LGAE_GEOMETRY_V5_3_2 |
-| README | LGAE v5.3.2 |
-| CHANGELOG | v5.3.2 |
-| BUILD_REPORT | v5.3.2 |
-| Tests | 629 passing |
+| Version constant | 5.3.3 |
+| pyproject.toml | 5.3.3 |
+| Schema constants | LGAE_GEOMETRY_V5_3_3 |
+| README | LGAE v5.3.3 |
+| CHANGELOG | v5.3.3 |
+| BUILD_REPORT | v5.3.3 |
+| Tests | 652 passing |
 | Geometry qualification | PASS (9/9) |
 | Production qualification | PASS (8/8) |
 | Policy qualification | PASS (100% accuracy, 0.0 regret) |
-| Wheel SHA-256 | a9e09f3441b7f2dc8f37cdc09566724f90dfd25524bfc6a10c502d85f687870a |
-| Manifest | 126 files verified |
+| Wheel SHA-256 | 73aed41bc94ca0c3e5c5a77c2afc2e0f165334c46cbc914687d2bbcd78cbae58 |
+| Manifest | 132 files verified |
 
 ### Verification procedure
 
@@ -754,7 +754,17 @@ test suite on push/PR. Badge in README links to
 
 ## 16. Version History
 
-### v5.3.2 — Research improvements and safety architecture (current)
+### v5.3.3 — Reproducibility repair (current)
+
+- Canonical action ordering (ACTION_ORDER, ACTION_TO_INDEX)
+- Removed Python hash() from deterministic logic
+- DeterministicRNGContext with domain-separated substreams
+- ReproducibilityInfo and qualification_id in all reports
+- All 652 tests pass under PYTHONHASHSEED=0,1,2,42,123456
+- All qualification reports byte-for-byte identical across runs
+- Policy qualification deterministic at 100% accuracy, 0.0 regret
+
+### v5.3.2 — Research improvements and safety architecture
 
 **Research improvements:**
 - Q(S,a) counterfactual controller (86% held-out accuracy)
@@ -778,7 +788,7 @@ test suite on push/PR. Badge in README links to
 - torch.compile performance qualification (honest negative result)
 - Task G: information gain active experimentation
 
-**Tests:** 629 (was 573 in v5.3.1)
+**Tests: 652 (was 629 in v5.3.2, was 573 in v5.3.1)
 
 ### v5.3.1 — Integrity and baseline-comparison fixes
 

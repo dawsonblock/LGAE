@@ -1,6 +1,56 @@
 # Changelog
 
-## v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control (current)
+## v5.3.3 — Reproducibility repair (current)
+
+Milestone 1 of the v5.4.0 roadmap. Eliminates nondeterminism that caused
+qualification results to vary across PYTHONHASHSEED values.
+
+### Added
+
+- **Canonical action ordering** (`ACTION_ORDER`, `ACTION_TO_INDEX`,
+  `canonical_action()`): deterministic selection from action sets,
+  replacing all `next(iter(set))` calls that were nondeterministic under
+  PYTHONHASHSEED variation.
+- **`DeterministicRNGContext`** (`src/lgae_v3/deterministic.py`):
+  domain-separated substreams (graph_generation, model_initialization,
+  counterfactuals, qualification, etc.) via SHA-256 seed derivation.
+  Prevents one new random call from changing every subsequent result.
+- **`deterministic_mode()`** context manager: seeds all global RNGs and
+  enables torch deterministic algorithms.
+- **`ReproducibilityInfo`** (`src/lgae_v3/reproducibility.py`): collects
+  seed, PYTHONHASHSEED, source commit, source tree hash, config hash,
+  platform, torch version. All qualification reports now include this
+  metadata.
+- **`qualification_id()`**: deterministic QID shared across all reports
+  from the same run. Makes it impossible to mix artifacts from different
+  runs without detection.
+- **23 new reproducibility tests** (`tests/test_v533_reproducibility.py`).
+- **Forensic baseline** (`qualification/baseline_v5_3_2.json`).
+- **Roadmap document** (`docs/ROADMAP_V5_4.md`): 18-milestone plan for
+  governed structural intelligence runtime.
+- **Complete guide** (`docs/COMPLETE_GUIDE.md`): comprehensive
+  documentation of architecture, audit responses, and limitations.
+
+### Fixed
+
+- **Oracle in `run_benchmark()`**: was using `next(iter(correct_actions()))`
+  (nondeterministic), now uses `OracleController` which picks highest-ΔU
+  action with canonical tie-breaking.
+- **Policy training label selection**: was using `list(set)[0]`
+  (nondeterministic), now uses canonical action ordering with highest-ΔU
+  selection.
+- **Removed all Python `hash()` from deterministic logic** in
+  `counterfactual.py`: replaced with SHA-256-based `_stable_hash_u64()`.
+
+### Verification
+
+- 652 tests pass (was 629, +23 new)
+- All 652 tests pass under PYTHONHASHSEED=0,1,2,42,123456
+- All 3 qualification reports are byte-for-byte identical across repeated runs
+- Policy qualification: 100% accuracy, 0.0 regret (deterministic)
+- Archived baseline as `archive/v5.3.2-received` tag
+
+## v5.3.2 — Research improvements: Q-learning, hierarchical retrieval, gauge norm control
 
 This release implements the audit's central recommendation: improve
 structural decision intelligence, not geometric measurement. The learned

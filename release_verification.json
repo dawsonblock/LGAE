@@ -60,7 +60,7 @@
   },
   "wheel": {
     "path": "dist/lgae_v3-5.3.3-py3-none-any.whl",
-    "sha256": "73aed41bc94ca0c3e5c5a77c2afc2e0f165334c46cbc914687d2bbcd78cbae58",
+    "sha256": "5838c4b26a7282fb810bff8bf8425c338ef8c0c36a39b9b7e949772f2c4eb0f0",
     "installed_version": "5.3.3",
     "cli_version": "5.3.3"
   },
