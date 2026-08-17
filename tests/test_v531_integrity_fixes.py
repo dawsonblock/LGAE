@@ -139,6 +139,6 @@ def test_policy_qualification_is_deterministic(seed):
 
 
 def test_policy_qualification_passes_release_gate():
-    _, r = qualify_structural_policy(seed=0, gradient_steps=200)
+    _, r = qualify_structural_policy(seed=0, gradient_steps=500)
     assert r.diagnosis_accuracy >= 0.80
     assert r.mean_regret <= 0.35

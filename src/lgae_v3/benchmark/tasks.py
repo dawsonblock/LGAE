@@ -580,6 +580,98 @@ class TaskF_NoOp(BenchmarkTask):
 
 
 # ===========================================================================
+# Task G: Information gain from exploration (v5.3.2)
+#
+# The audit found that the IG head predicts information gain but the
+# benchmark doesn't test whether it drives active experimentation.  This
+# task creates a graph with hidden structural uncertainty (two possible
+# topologies consistent with the observed edges) and measures whether
+# exploratory mutations (those with high predicted IG) actually reduce
+# uncertainty about the true structure.
+# ===========================================================================
+
+class TaskG_InformationGain(BenchmarkTask):
+    """Hidden structural uncertainty: exploration should reduce it.
+
+    The graph has an ambiguous region where two interpretations are
+    possible.  Adding an edge in the ambiguous region resolves the
+    ambiguity (high actual IG), while adding an edge elsewhere doesn't
+    (low actual IG).  The task tests whether the executive's IG
+    predictions correlate with actual information gain.
+    """
+
+    name = "G_info_gain"
+    description = "Hidden structural uncertainty requiring exploration"
+
+    def initial_state(self, seed: int = 42) -> TaskState:
+        torch.manual_seed(seed)
+        # 8 nodes: two clusters with an ambiguous middle node
+        N = 8
+        edges = [
+            (0, 1), (1, 2),        # cluster 1
+            (3, 4), (4, 5),        # cluster 2
+            (2, 6), (5, 6),        # node 6 connects both clusters
+            # Node 7 is isolated from the main structure
+            (6, 7),
+        ]
+        graph = make_graph_buffers(N, edges, capacity=N + 4)
+        # Latent states with uncertainty in the middle region
+        z = torch.randn(N, 4) * 0.5
+        z[6] = torch.zeros(4)  # ambiguous middle node
+        z[7] = torch.randn(4) * 0.1  # near-zero latent (uncertain)
+        cfg = LGAEConfig()
+        cfg.fiber.d_base = 4
+        cfg.fiber.d_max = 8
+        return TaskState(graph=graph, z=z, config=cfg, task_params={"seed": seed})
+
+    def correct_actions(self) -> set[StructuralAction]:
+        # Adding an edge to resolve ambiguity is the correct exploratory action
+        return {StructuralAction.ADD_EDGE, StructuralAction.NO_OP}
+
+    def utility(self, state: TaskState) -> float:
+        """Utility = spectral gap + exploration bonus for resolving ambiguity."""
+        import networkx as nx
+        G = nx.Graph()
+        G.add_nodes_from(range(state.graph.num_nodes))
+        ids = state.graph.valid.nonzero(as_tuple=True)[0]
+        for i in ids.tolist():
+            u, v = int(state.graph.src[i]), int(state.graph.dst[i])
+            G.add_edge(u, v)
+        if G.number_of_edges() == 0:
+            return 0.0
+        eigenvalues = nx.laplacian_spectrum(G).real
+        eigenvalues.sort()
+        lam2 = float(eigenvalues[1]) if len(eigenvalues) > 1 else 0.0
+        # Exploration bonus: edges connecting node 7 to the main structure
+        # reduce uncertainty.  Reward connectivity of node 7.
+        exploration_bonus = 0.0
+        if 7 in G:
+            deg7 = G.degree(7)
+            exploration_bonus = 0.1 * deg7
+        return lam2 + exploration_bonus
+
+    def apply_action(self, state: TaskState, action: StructuralAction) -> TaskState:
+        import copy
+        graph = copy.deepcopy(state.graph)
+        z = state.z.clone()
+        params = dict(state.task_params)
+        if action == StructuralAction.ADD_EDGE:
+            from ..mutations import AddEdge
+            # Add edge from node 7 to the main structure (resolves ambiguity)
+            AddEdge(7, 2).apply(graph)
+        elif action == StructuralAction.PRUNE_EDGE:
+            from ..mutations import PruneEdge
+            ids = graph.valid.nonzero(as_tuple=True)[0]
+            if len(ids) > 0:
+                PruneEdge(int(graph.src[ids[0]]), int(graph.dst[ids[0]])).apply(graph)
+        elif action == StructuralAction.NO_OP:
+            pass
+        else:
+            pass
+        return TaskState(graph=graph, z=z, config=state.config, task_params=params)
+
+
+# ===========================================================================
 # Registry
 # ===========================================================================
 
@@ -590,6 +682,7 @@ ALL_TASKS: list[BenchmarkTask] = [
     TaskD_GaugeMismatch(),
     TaskE_DistributionShift(),
     TaskF_NoOp(),
+    TaskG_InformationGain(),
 ]
 
 

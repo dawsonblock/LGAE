@@ -158,8 +158,9 @@ class TestBenchmarkMetrics:
             proposals={t.name: StructuralAction.NO_OP for t in ALL_TASKS},
             seed=42,
         )
-        # NO_OP for all tasks: only Task F is correct
-        assert result.diagnosis_accuracy == 1.0 / len(ALL_TASKS)
+        # NO_OP for all tasks: only Task F and Task G have NO_OP in correct_actions
+        correct_count = sum(1 for t in ALL_TASKS if StructuralAction.NO_OP in t.correct_actions())
+        assert result.diagnosis_accuracy == correct_count / len(ALL_TASKS)
 
     def test_diagnosis_accuracy_calculation(self):
         task = TaskA_Bottleneck()

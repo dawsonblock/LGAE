@@ -15,6 +15,7 @@ Covers:
 import pytest
 import torch
 import numpy as np
+import math
 
 from lgae_v3.production_dynamics import (
     GraphFeatureBaseline,
@@ -350,3 +351,237 @@ class TestCheckpointMerkleRoot:
         m1 = json.loads((ckpt1 / "manifest.json").read_text())
         m2 = json.loads((ckpt2 / "manifest.json").read_text())
         assert m1["merkle_root"] != m2["merkle_root"]
+
+
+# ===========================================================================
+# Ed25519 receipt signing tests
+# ===========================================================================
+
+class TestEd25519ReceiptSigning:
+    def test_ed25519_available(self):
+        from lgae_v3.receipts import ed25519_available
+        # Should be available if cryptography or PyNaCl is installed
+        # (at least one is typically present)
+        assert isinstance(ed25519_available(), bool)
+
+    def test_signed_receipt_verifies(self, tmp_path):
+        from lgae_v3.receipts import (
+            ed25519_available, generate_keypair, mutation_receipt,
+            append_receipt, verify_receipt_chain,
+        )
+        if not ed25519_available():
+            pytest.skip("Ed25519 backend not installed")
+        priv, pub = generate_keypair()
+        path = tmp_path / "ledger.jsonl"
+        r = mutation_receipt({"decision": "accept"}, signing_key=priv)
+        append_receipt(path, r)
+        valid, errors = verify_receipt_chain(path, public_key=pub)
+        assert valid, f"Errors: {errors}"
+
+    def test_tampered_signature_detected(self, tmp_path):
+        from lgae_v3.receipts import (
+            ed25519_available, generate_keypair, mutation_receipt,
+            append_receipt, verify_receipt_chain,
+        )
+        if not ed25519_available():
+            pytest.skip("Ed25519 backend not installed")
+        priv, pub = generate_keypair()
+        priv2, pub2 = generate_keypair()
+        path = tmp_path / "ledger.jsonl"
+        r = mutation_receipt({"decision": "accept"}, signing_key=priv)
+        append_receipt(path, r)
+        # Verify with wrong key should fail
+        valid, errors = verify_receipt_chain(path, public_key=pub2)
+        assert not valid
+        assert any("ed25519" in e for e in errors)
+
+
+# ===========================================================================
+# Bayesian curvature hysteresis tests
+# ===========================================================================
+
+class TestBayesianCurvatureHysteresis:
+    def test_effective_sample_size_grows(self):
+        from lgae_v3.production_dynamics import CurvatureHysteresisController
+        c = CurvatureHysteresisController()
+        for _ in range(5):
+            c.update({(0, 1): -0.5})
+        e = c.edge_stats(0, 1)
+        assert e.effective_sample_size > 1.0
+        assert e.count == 5
+
+    def test_credible_interval_narrows_with_data(self):
+        from lgae_v3.production_dynamics import CurvatureHysteresisController
+        c = CurvatureHysteresisController()
+        # First few observations
+        for _ in range(3):
+            c.update({(0, 1): -1.0})
+        e3 = c.edge_stats(0, 1)
+        lo3, hi3 = e3.credible_interval(0.95)
+        width3 = hi3 - lo3
+        # More observations
+        for _ in range(10):
+            c.update({(0, 1): -1.0})
+        e13 = c.edge_stats(0, 1)
+        lo13, hi13 = e13.credible_interval(0.95)
+        width13 = hi13 - lo13
+        # Interval should narrow with more data
+        assert width13 < width3
+
+    def test_predictive_sigma_is_finite_and_positive(self):
+        from lgae_v3.production_dynamics import CurvatureHysteresisController
+        c = CurvatureHysteresisController()
+        for _ in range(5):
+            c.update({(0, 1): 0.3})
+        e = c.edge_stats(0, 1)
+        # Predictive sigma should be finite and positive
+        assert math.isfinite(e.predictive_sigma)
+        assert e.predictive_sigma > 0
+
+    def test_state_dict_roundtrip_preserves_bayesian_params(self):
+        from lgae_v3.production_dynamics import CurvatureHysteresisController
+        c = CurvatureHysteresisController()
+        for _ in range(5):
+            c.update({(0, 1): -0.5})
+        sd = c.state_dict()
+        c2 = CurvatureHysteresisController.from_state_dict(sd)
+        e = c2.edge_stats(0, 1)
+        assert e.effective_sample_size > 1.0
+        assert e.mean == pytest.approx(-0.5, abs=0.01)
+
+
+# ===========================================================================
+# Task G (information gain) tests
+# ===========================================================================
+
+class TestTaskGInformationGain:
+    def test_task_g_exists(self):
+        from lgae_v3.benchmark import TaskG_InformationGain
+        t = TaskG_InformationGain()
+        assert t.name == "G_info_gain"
+
+    def test_task_g_initial_state(self):
+        from lgae_v3.benchmark import TaskG_InformationGain
+        t = TaskG_InformationGain()
+        s = t.initial_state()
+        assert s.graph.num_nodes == 8
+        assert int(s.graph.valid.sum()) > 0
+
+    def test_task_g_add_edge_improves_utility(self):
+        from lgae_v3.benchmark import TaskG_InformationGain, StructuralAction
+        t = TaskG_InformationGain()
+        s = t.initial_state()
+        u_before = t.utility(s)
+        outcome = t.evaluate(s, StructuralAction.ADD_EDGE)
+        assert outcome.delta_utility > 0  # adding edge improves utility
+
+    def test_task_g_in_all_tasks(self):
+        from lgae_v3.benchmark import ALL_TASKS
+        assert any(t.name == "G_info_gain" for t in ALL_TASKS)
+
+
+# ===========================================================================
+# Tensor-native topology tests
+# ===========================================================================
+
+class TestTensorNativeTopology:
+    def test_topology_signature_buffers_matches_networkx(self):
+        from lgae_v3 import make_graph_buffers, topology_signature_buffers, graphbuffers_to_networkx, topology_signature
+        g = make_graph_buffers(8, [(0,1),(1,2),(2,3),(3,4),(4,5),(5,6),(6,7),(0,7),(2,5)], capacity=12)
+        sig_buf = topology_signature_buffers(g)
+        gx = graphbuffers_to_networkx(g)
+        sig_nx = topology_signature(gx)
+        assert sig_buf["beta0"] == sig_nx["beta0"]
+        assert sig_buf["beta1"] == sig_nx["beta1"]
+        assert sig_buf["nodes"] == sig_nx["nodes"]
+        assert sig_buf["edges"] == sig_nx["edges"]
+
+    def test_find_bridges_buffers_matches_networkx(self):
+        import networkx as nx
+        from lgae_v3 import make_graph_buffers, find_bridges_buffers, graphbuffers_to_networkx
+        g = make_graph_buffers(6, [(0,1),(1,2),(2,0),(3,4),(4,5),(2,3)], capacity=10)
+        bridges = find_bridges_buffers(g)
+        gx = graphbuffers_to_networkx(g)
+        nx_bridges = set(tuple(sorted((a,b))) for a,b in nx.bridges(gx))
+        assert bridges == nx_bridges
+
+
+# ===========================================================================
+# MPC tests
+# ===========================================================================
+
+class TestStructuralMPC:
+    def test_mpc_plans_a_sequence(self):
+        from lgae_v3 import StructuralMPC, make_graph_buffers
+        import torch
+        def utility_fn(graph, z):
+            return float(graph.valid.sum().item()) * 0.1
+        graph = make_graph_buffers(6, [(0,1),(1,2),(2,3),(3,4),(4,5)], capacity=10)
+        z = torch.randn(6, 4)
+        mpc = StructuralMPC(utility_fn, horizon=2, max_branching=4, max_sequences=16)
+        result = mpc.plan(graph, z)
+        assert len(result.best_sequence) > 0
+        assert result.candidates_evaluated > 0
+        assert result.horizon == 2
+
+    def test_mpc_first_mutation_has_authority(self):
+        from lgae_v3 import StructuralMPC, make_graph_buffers, MutationAuthorityLevel
+        import torch
+        def utility_fn(graph, z):
+            return float(graph.valid.sum().item())
+        graph = make_graph_buffers(6, [(0,1),(1,2),(2,3),(3,4),(4,5)], capacity=10)
+        z = torch.randn(6, 4)
+        mpc = StructuralMPC(utility_fn, horizon=1, max_branching=4, max_sequences=8)
+        result = mpc.plan(graph, z)
+        assert result.first_mutation_authority in MutationAuthorityLevel
+
+
+# ===========================================================================
+# Permutation-equivariant executive tests
+# ===========================================================================
+
+class TestEquivariantExecutive:
+    def test_output_is_permutation_invariant(self):
+        from lgae_v3 import EquivariantExecutiveNetwork, permutation_invariance_test, make_graph_buffers, graphbuffers_to_edge_index
+        import torch
+        torch.manual_seed(0)
+        net = EquivariantExecutiveNetwork(node_feat_dim=4, hidden_dim=32, num_actions=9)
+        graph = make_graph_buffers(6, [(0,1),(1,2),(2,3),(3,4),(4,5),(0,5)], capacity=10)
+        edge_index = graphbuffers_to_edge_index(graph)
+        node_feats = torch.randn(6, 4)
+        perm = torch.tensor([5, 3, 1, 4, 0, 2])
+        diffs = permutation_invariance_test(net, node_feats, edge_index, perm)
+        for key, val in diffs.items():
+            assert val < 1e-4, f"{key} not permutation invariant: {val}"
+
+    def test_node_embeddings_are_permutation_equivariant(self):
+        from lgae_v3 import EquivariantExecutiveNetwork, make_graph_buffers, graphbuffers_to_edge_index
+        import torch
+        torch.manual_seed(0)
+        net = EquivariantExecutiveNetwork(node_feat_dim=4, hidden_dim=32)
+        graph = make_graph_buffers(6, [(0,1),(1,2),(2,3),(3,4),(4,5)], capacity=10)
+        edge_index = graphbuffers_to_edge_index(graph)
+        node_feats = torch.randn(6, 4)
+        perm = torch.tensor([3, 1, 4, 0, 5, 2])
+        # Original embeddings
+        emb_orig = net.node_embeddings(node_feats, edge_index)
+        # Permuted embeddings
+        perm_feats = node_feats[perm]
+        perm_map = torch.zeros_like(perm)
+        perm_map[perm] = torch.arange(len(perm))
+        perm_edge_index = perm_map[edge_index]
+        emb_perm = net.node_embeddings(perm_feats, perm_edge_index)
+        # Check that permuted embeddings match original (permuted)
+        assert torch.allclose(emb_orig[perm], emb_perm, atol=1e-4)
+
+    def test_output_has_correct_keys(self):
+        from lgae_v3 import EquivariantExecutiveNetwork, make_graph_buffers, graphbuffers_to_edge_index
+        import torch
+        net = EquivariantExecutiveNetwork(node_feat_dim=4, hidden_dim=32)
+        graph = make_graph_buffers(5, [(0,1),(1,2),(2,3),(3,4)], capacity=8)
+        edge_index = graphbuffers_to_edge_index(graph)
+        out = net(torch.randn(5, 4), edge_index)
+        assert "delta_u" in out
+        assert "ig" in out
+        assert "policy_logits" in out
+        assert out["delta_u"].shape == (9,)

@@ -24,6 +24,105 @@ def graphbuffers_to_networkx(graph: GraphBuffers) -> nx.Graph:
     return g
 
 
+# ---------------------------------------------------------------------------
+# v5.3.2: Tensor-native topology operations (no NetworkX conversion).
+#
+# The audit found that repeated graph-to-NetworkX conversion bottlenecks
+# at large N.  These functions operate directly on GraphBuffers using
+# union-find and tensor operations, avoiding the NetworkX overhead.
+# ---------------------------------------------------------------------------
+
+def _union_find_components(num_nodes: int, edges: list[tuple[int, int]]) -> int:
+    """Count connected components using union-find (no NetworkX)."""
+    parent = list(range(num_nodes))
+
+    def find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x: int, y: int) -> None:
+        px, py = find(x), find(y)
+        if px != py:
+            parent[px] = py
+
+    for u, v in edges:
+        union(int(u), int(v))
+
+    roots = {find(i) for i in range(num_nodes)}
+    return len(roots)
+
+
+def topology_signature_buffers(graph: GraphBuffers) -> dict[str, float]:
+    """Compute topology signature directly from GraphBuffers (no NetworkX).
+
+    Returns the same dict as topology_signature() but without the
+    NetworkX conversion overhead.
+    """
+    graph.validate()
+    n = graph.num_nodes
+    src, dst, _ = graph.active()
+    edges = list(zip(src.tolist(), dst.tolist()))
+    e = len(edges)
+    c = _union_find_components(n, edges)
+    beta1 = e - n + c
+    return {
+        "nodes": float(n),
+        "edges": float(e),
+        "beta0": float(c),
+        "beta1": float(beta1),
+        "num_nodes": float(n),
+        "num_edges": float(e),
+    }
+
+
+def find_bridges_buffers(graph: GraphBuffers) -> set[tuple[int, int]]:
+    """Find bridge edges directly from GraphBuffers (no NetworkX).
+
+    A bridge is an edge whose removal increases the number of connected
+    components.  Uses the Tarjan algorithm for O(V+E) bridge finding.
+    """
+    graph.validate()
+    n = graph.num_nodes
+    src, dst, _ = graph.active()
+    edges = list(zip(src.tolist(), dst.tolist()))
+
+    # Build adjacency list
+    adj: dict[int, list[tuple[int, int]]] = {i: [] for i in range(n)}
+    for idx, (u, v) in enumerate(edges):
+        adj[int(u)].append((int(v), idx))
+        adj[int(v)].append((int(u), idx))
+
+    # Tarjan's bridge-finding algorithm
+    visited = [False] * n
+    disc = [0] * n
+    low = [0] * n
+    bridges: set[tuple[int, int]] = set()
+    timer = [0]
+
+    def dfs(u: int, parent_edge: int = -1) -> None:
+        visited[u] = True
+        disc[u] = low[u] = timer[0]
+        timer[0] += 1
+        for v, edge_idx in adj[u]:
+            if edge_idx == parent_edge:
+                continue
+            if not visited[v]:
+                dfs(v, edge_idx)
+                low[u] = min(low[u], low[v])
+                if low[v] > disc[u]:
+                    bridges.add(tuple(sorted((u, v))))
+            else:
+                low[u] = min(low[u], disc[v])
+
+    for i in range(n):
+        if not visited[i]:
+            dfs(i)
+
+    return bridges
+
+
 def topology_signature(g: nx.Graph) -> dict[str, float]:
     c = nx.number_connected_components(g)
     n = g.number_of_nodes()

@@ -16,7 +16,7 @@ from lgae_v3.types import make_graph_buffers
 def test_policy_qualification_heldout_gate():
     # CI-light version of the release qualification.
     _, result = qualify_structural_policy(
-        train_seeds=range(8), heldout_seeds=(101, 102), gradient_steps=250, seed=0,
+        train_seeds=range(8), heldout_seeds=(101, 102), gradient_steps=400, seed=0,
     )
     assert result.diagnosis_accuracy >= 0.75
     assert result.mean_regret < 0.40

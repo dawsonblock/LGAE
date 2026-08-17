@@ -578,11 +578,12 @@ class GeometryGovernor:
         name = getattr(mutation, "name", "")
         if name == "prune_edge" and self.cfg.audit.preserve_beta0:
             u = int(getattr(mutation, "u")); v = int(getattr(mutation, "v"))
-            g = graphbuffers_to_networkx(graph)
-            if g.has_edge(u, v):
-                # Bridge test is O(V+E), far cheaper than curvature/spectral audits.
-                if (min(u, v), max(u, v)) in { (min(a,b), max(a,b)) for a,b in nx.bridges(g) }:
-                    return False, "local_bridge_prune_would_disconnect"
+            # v5.3.2: Use tensor-native bridge detection (no NetworkX conversion).
+            # This avoids the O(V+E) graph-to-NetworkX conversion overhead.
+            from .topology import find_bridges_buffers
+            bridges = find_bridges_buffers(graph)
+            if (min(u, v), max(u, v)) in bridges:
+                return False, "local_bridge_prune_would_disconnect"
         return True, None
 
     def evaluate_mutation(self, graph: GraphBuffers, z: Tensor, mutation, *, seed: int = 0, gauge_bank=None) -> tuple[MutationResult, GraphBuffers]:

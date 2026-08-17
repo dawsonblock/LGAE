@@ -71,8 +71,21 @@ from .production_dynamics import (
     CurvatureHysteresisController, LatentEquilibriumBarrier, GraphHashBaseline, GraphFeatureBaseline,
 )
 from .transactions import GraphTransaction, graph_transaction
+from .receipts import (
+    mutation_receipt, append_receipt, verify_receipt_chain,
+    ed25519_available, generate_keypair, sign_receipt, verify_receipt_signature,
+)
 from .causal_edges import (
     EdgeSemantics, CausalEdge, CausalEdgeRegistry, infer_causality_from_temporal,
+)
+from .topology import (
+    graphbuffers_to_networkx, topology_signature, topology_drift,
+    topology_signature_buffers, find_bridges_buffers,
+)
+from .mpc import StructuralMPC, MPCPlanResult
+from .equivariant import (
+    EquivariantExecutiveNetwork, MessagePassingLayer,
+    graphbuffers_to_edge_index, permutation_invariance_test,
 )
 from .hypergraph import (
     Hyperedge, HypergraphBuffers, hypergraph_laplacian_diffusion,
